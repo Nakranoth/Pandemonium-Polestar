@@ -10,9 +10,11 @@ int main()
 	SDL_WM_SetCaption("Pandemonium Polestar", NULL); //sets title bar
 	keys = SDL_GetKeyState(NULL);
 
+	ZBRA test;
+	test.City();
 	while(keys[SDLK_ESCAPE] == false)
 	{
-		ZBRA* test = new ZBRA();
+		//if(keys[])
 		SDL_PumpEvents();
 	}
 
