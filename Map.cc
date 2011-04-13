@@ -5,6 +5,13 @@ Map::Map(int xloc, int yloc, int xsiz, int ysiz, short floor, short wall, short 
 	telements = new Tile[xsiz*ysiz];
 	area = &telements;
 	ref = &area[0][0];
+	this->floor = floor;
+	this->wall = wall;
+	this->flags = flags;
+	this->x = x;
+	this->y = y;
+	this->xsiz = xsiz;
+	this->ysiz = ysiz;
 }
 
 Map::~Map(){
@@ -12,5 +19,16 @@ Map::~Map(){
 }
 
 bool Map::populate(){
-	return true;
+	area[0][0].sprite = floor;
+	area[0][0].x = x;
+	area[0][0].y = y;
+	for (int i = 0;i < xsiz; i++){
+		for (int j = 0; j < ysiz; j++){
+			area[i][j].sprite = floor;
+			if (i > 0) area[i][j].west = &area[i-1][j];
+			if (j > 0) area[i][j].south = &area[i][j-1];
+			if (i < xsiz - 1) area[i][j].east = &area[i+1][j];
+			if (j < ysiz - 1) area[i][j].north = &area[i][j+1];
+		}
+	}
 }
