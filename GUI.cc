@@ -12,11 +12,25 @@ int main()
 
 	ZBRA test;
 	test.City();
+
 	while(keys[SDLK_ESCAPE] == false)
 	{
-		//if(keys[])
+		outputMap(test.getRefTile());
+
+		//This allows for listening of key and mouse events and such
 		SDL_PumpEvents();
 	}
 
 	return 0;
 }
+
+void outputMap(Tile* refTile)
+{
+	cout<<"WE WILL BE OUTPUTING THE MAP STARTING AT X = " << refTile->x << " and Y = " << refTile->y << endl;
+	
+}
+
+//grasb a ref. tile and they should be stitched together so that i can travers them all and display them
+
+//grab red tile
+//output this tile (top left of the room, eventually will be a tile near the player)

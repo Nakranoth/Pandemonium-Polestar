@@ -1,13 +1,15 @@
 #include "Tile.h"
 
-Tile::Tile(int _x, int _y, Uint8 _sprite, bool _solid) :x(_x),y(_y),sprite(_sprite),solid(_solid){
+Tile::Tile(int _x, int _y, Uint8 _sprite, bool _solid) :x(_x),y(_y),sprite(_sprite),solid(_solid)
+{
 	north = NULL;
 	south = NULL;
 	east = NULL;
 	west = NULL;
 }
 
-Tile::Tile(){
+Tile::Tile()
+{
 	north = NULL;
 	south = NULL;
 	east = NULL;
@@ -15,7 +17,8 @@ Tile::Tile(){
 	x = y = sprite = solid = 0;
 }
 
-Tile::~Tile(){
+Tile::~Tile()
+{
 	if (north) north->south = NULL;
 	if (south) south->north = NULL;
 	if (east) east->west = NULL;

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Map.h"
+#include "Tile.h"
 
 using namespace std;
 
@@ -14,14 +15,16 @@ class ZBRA
 		vector<ZBRA*> subArea;	//ZBRAs within this ZBRA
 		Map* map; //tiles the ZBRA contains
 		vector<int> fops; //the FOPs of the ZBRA
-		int minSize;
-		int idealSize;
-		short floor, wall;
+		int minSize; //minimum size allowed
+		int idealSize; //size to be aimed for
+		short floor, wall; //what type of material the floors or walls are
 	public:
 		ZBRA();
 		~ZBRA();
 		bool tryDim(int x, int y);
+		Tile* getRefTile();
 		
+		//The functions that will help determine what this type of ZBRA will contain
 		ZBRA* City();
 		ZBRA* House();
 		ZBRA* BathRoom();

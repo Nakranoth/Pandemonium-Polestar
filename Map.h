@@ -3,7 +3,8 @@
 
 #include "Tile.h"
 
-class Map{
+class Map
+{
 	public:
 		Tile* ref; //this is the reference tile for this area
 	private:
