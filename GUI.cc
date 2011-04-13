@@ -26,7 +26,7 @@ int main()
 
 void outputMap(Tile* refTile)
 {
-	cout<<"WE WILL BE OUTPUTING THE MAP STARTING AT X = " << refTile->x << " and Y = " << refTile->y << endl;
+	//cout<<"WE WILL BE OUTPUTING THE MAP STARTING AT X = " << refTile->x << " and Y = " << refTile->y << endl;
 	
 }
 

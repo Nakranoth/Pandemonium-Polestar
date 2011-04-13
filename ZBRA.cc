@@ -79,8 +79,7 @@ ZBRA* ZBRA::House()
 	return this;
 }
 
-ZBRA* ZBRA:: Kitchen()
-{
+ZBRA* ZBRA::Kitchen(){
 	shallow = false;
 	floor = Tile::FLOOR;
 	wall = Tile::WALL;
@@ -88,8 +87,7 @@ ZBRA* ZBRA:: Kitchen()
 	idealSize = 40;
 }
 
-ZBRA* ZBRA:: LivingRoom()
-{
+ZBRA* ZBRA::LivingRoom(){
 	shallow = false;
 	floor = Tile::FLOOR;
 	wall = Tile::WALL;
@@ -97,8 +95,7 @@ ZBRA* ZBRA:: LivingRoom()
 	idealSize = 45;
 }
 
-ZBRA* ZBRA:: BedRoom()
-{
+ZBRA* ZBRA::BedRoom(){
 	shallow = false;
 	floor = Tile::FLOOR;
 	wall = Tile::WALL;

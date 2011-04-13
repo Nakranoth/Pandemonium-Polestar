@@ -7,9 +7,14 @@ class Map
 {
 	public:
 		Tile* ref; //this is the reference tile for this area
+		short wall;
 	private:
 		Tile** area;		//Reference pointer to telements.
 		Tile* telements;	//Mem space for tiles to be generated into. Should make life easier.
+		int x, y, xsiz, ysiz;
+		short floor;
+		short flags;
+		
 		//Queue<Tile> border; //a list of tiles that make up the border for this map's area
 
 	public:
