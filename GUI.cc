@@ -1,5 +1,7 @@
 #include "GUI.h"
 
+void notDone(){return;}
+
 int main()
 {
 	SDL_Surface *screen;
@@ -12,9 +14,13 @@ int main()
 
 	ZBRA test;
 	test.City();
+	int cityDim = ceil(sqrt(test.idealSize));
+	test.tryDim(cityDim,cityDim);
+	
 	while(keys[SDLK_ESCAPE] == false)
 	{
 		//if(keys[])
+		notDone();
 		SDL_PumpEvents();
 	}
 
