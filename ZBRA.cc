@@ -55,6 +55,8 @@ ZBRA* ZBRA::City(){
 	subArea.push_back((new ZBRA)->House());
 	minSize = 25 + getMinSize();
 	idealSize = 35 + getIdealSize();
+	int cityDim = ceil(sqrt(idealSize));
+	tryDim(cityDim,cityDim);
 	cout << minSize << "->" << idealSize << endl;
 	return this;
 }
