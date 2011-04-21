@@ -2,6 +2,7 @@
 #define _ZBRA_
 
 #include <vector>
+#include <math.h>
 
 #include "Map.h"
 #include "Tile.h"

@@ -14,10 +14,17 @@ ZBRA::~ZBRA()
 bool ZBRA::tryDim(int x, int y)
 {
 	if (x*y < minSize) return false;
+	for (vector<ZBRA*>::iterator i = subArea.begin(); i != subArea.end(); i++){
+		int siz = ceil(sqrt((*i)->idealSize));
+		(*i)->tryDim(siz,siz);
+	}
 	map = new Map(0,0,x,y,floor,wall);
 	if (map->populate()) return true;
-	else delete map;
-	return false;
+	else {
+		delete map;
+		map = NULL;
+		return false;
+	}
 }
 
 int ZBRA::getIdealSize()
@@ -59,6 +66,8 @@ ZBRA* ZBRA::City()
 	subArea.push_back((new ZBRA)->House()); //only one test house for now
 	minSize = 25 + getMinSize();
 	idealSize = 35 + getIdealSize();
+	int cityDim = ceil(sqrt(idealSize));
+	tryDim(cityDim,cityDim);
 	cout << minSize << "->" << idealSize << endl;
 	return this;
 }
