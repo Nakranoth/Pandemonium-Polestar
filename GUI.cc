@@ -24,7 +24,7 @@ int GUI::onExecute()
         	}
 		
 		Logic();
-		Render(city.map->ref);
+		RenderMap(city.map->ref);
 	}
 
 	//Before exiting take care of any cleaning up
@@ -46,6 +46,10 @@ bool GUI::Initialize()
 
 	//setting running to true
 	running = true;
+
+	//setting up testing charx and chary positions....(observer persay)
+	charX = 320;
+	charY = 240;
 
 	//Telling SDL to initialize everything it has...
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -78,10 +82,7 @@ bool GUI::Initialize()
  *************************************/
 void GUI::EventHandler(SDL_Event* Event)
 {
-	if(Event->type == SDL_QUIT)
-	{
-        	running = false;
-    	}
+	Events::OnEvent(Event);
 }
 
 /*************************************
@@ -103,15 +104,8 @@ void GUI::Logic()
  *************************************/
 void GUI::Render(Tile* ref)
 {
-	while(ref != NULL)
-	{
-		SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE, (ref->y)*Tile::SIZE, 0, 0, Tile::SIZE, Tile::SIZE);
-		ref = ref->east;
-	}
-
-	//Will go after the loop finishing the output of
-	//the map so that all tiles are rendered THEN output
-	SDL_Flip(screen);
+	//Draws the image to the surface
+	SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320, (ref->y)*Tile::SIZE - charY + 240, 0, 0, Tile::SIZE, Tile::SIZE);
 
 }
 
@@ -135,10 +129,87 @@ void GUI::Cleanup()
  *This function uses a reference tile
  *to render the rest of the map.
  *************************************/
-void GUI::outputMap(Tile* refTile)
+void GUI::RenderMap(Tile* refTile)
 {
-	//cout<<"WE WILL BE OUTPUTING THE MAP STARTING AT X = " << refTile->x << " and Y = " << refTile->y << endl;
+	//Clear the screen
+	SDL_FillRect(screen,NULL,0);
+
+	//create a list of things yet to be rendered
+	set<Tile*> toRender;
+	toRender.insert(refTile);
+
+	//create a list of things that have already been rendered
+	set<Tile*> isRendered;
+
+	//While there is still stuff to render...
+	while(!toRender.empty())
+	{
+		set<Tile*>::iterator it;
+		it = toRender.begin();
+		Tile* curr = *it;
+
+		if (curr->north && !isRendered.count(curr->north)){
+			toRender.insert(curr->north);
+		}
+		if (curr->west && !isRendered.count(curr->west)){
+			toRender.insert(curr->west);
+		}
+		if (curr->south && !isRendered.count(curr->south)){
+			toRender.insert(curr->south);
+		}
+		if (curr->east && !isRendered.count(curr->east)){
+			toRender.insert(curr->east);
+		}
+			
+		Render(curr);
+		isRendered.insert(curr);
+		toRender.erase(it);
+	}
+
+
+
+	//Will go after the loop finishing the output of
+	//the map so that all tiles are rendered THEN output
+	SDL_Flip(screen);
 	
 }
 
+/*************************************
+ *onExit()
+ *
+ *This function handles what happens
+ *during the onExit event.
+ *************************************/
+void GUI::onExit()
+{
+	running = false;
+}
 
+void GUI::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
+{
+	//UP
+	if(sym == 273)
+	{
+		charY -= 10;
+	}
+	//DOWN
+	if(sym == 274)
+	{
+		charY += 10;
+	}
+	//LEFT
+	if(sym == 276)
+	{
+		charX -= 10;
+	}
+	//RIGHT
+	if(sym == 275)
+	{
+		charX += 10;
+	}
+	//ESCAPE
+	if(sym == 27)
+	{
+		onExit();
+	}
+}

@@ -7,8 +7,9 @@
 #include "ZBRA.h"
 #include "Tile.h"
 #include "SurfaceLoader.h"
+#include "Events.h"
 
-class GUI
+class GUI : public Events
 {
 
 	private:
@@ -19,6 +20,8 @@ class GUI
 	public:
 	SDL_Event Event;
 	ZBRA city;
+	int charX;
+	int charY;
 
 	public:
 	int onExecute();
@@ -26,8 +29,11 @@ class GUI
 	void EventHandler(SDL_Event* Event);
 	void Logic();
 	void Render(Tile* ref);
+	void onExit();
 	void Cleanup();
-	void outputMap(Tile* refTile);
+	void RenderMap(Tile* refTile);
+
+	void OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode);
 };
 
 #endif
