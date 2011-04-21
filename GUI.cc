@@ -1,36 +1,138 @@
 #include "GUI.h"
 
-int main()
+/*************************************
+ *onExecute()
+ *
+ *This function is called from main
+ *to start the game.
+ *************************************/
+int GUI::onExecute()
 {
-	SDL_Surface *screen;
-	Uint8 *keys;
-
-	SDL_Init(SDL_INIT_VIDEO);
-	screen = SDL_SetVideoMode(640,480,16,SDL_SWSURFACE | SDL_DOUBLEBUF);
-	SDL_WM_SetCaption("Pandemonium Polestar", NULL); //sets title bar
-	keys = SDL_GetKeyState(NULL);
-
-	ZBRA test;
-	test.City();
-
-	while(keys[SDLK_ESCAPE] == false)
+	//Initialize stuff and make sure it is done correctly
+	if(Initialize() == 0)
 	{
-		outputMap(test.getRefTile());
-
-		//This allows for listening of key and mouse events and such
-		SDL_PumpEvents();
+		return -1;
 	}
+
+	//Enter the main game loop
+	while(running)
+	{
+		//Poll for events from the user
+		while(SDL_PollEvent(&Event))
+		{
+            		EventHandler(&Event);
+        	}
+		
+		Logic();
+		Render();
+	}
+
+	//Before exiting take care of any cleaning up
+	Cleanup();
 
 	return 0;
 }
 
-void outputMap(Tile* refTile)
+/*************************************
+ *Initialize()
+ *
+ *This function initializes variables
+ *to be used in the game.
+ *************************************/
+bool GUI::Initialize()
+{
+	//sets up the ZBRA 'city' to be a city
+	city.City();
+
+	//setting running to true
+	running = true;
+
+	//Telling SDL to initialize everything it has...
+	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
+	{
+        	return false;
+    	}
+
+	//attempting to set the screen's properties, exit with error otherwise
+	//initializing the screen to null
+	screen = NULL;
+	if((screen = SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
+	{
+        	return false;
+    	}
+
+	GRASS = NULL;
+	if((GRASS = SurfaceLoader::LoadImage("./grass.bmp")) == NULL) {
+		return false;
+	}
+
+	return true;
+}
+
+/*************************************
+ *EventHandler()
+ *
+ *This function is called to listen
+ *for any events input from the user
+ *and handle them accordingly.
+ *************************************/
+void GUI::EventHandler(SDL_Event* Event)
+{
+	if(Event->type == SDL_QUIT)
+	{
+        	running = false;
+    	}
+}
+
+/*************************************
+ *Logic()
+ *
+ *This function handles the logic and
+ *data manipulation of gameplay.
+ *************************************/
+void GUI::Logic()
+{
+
+}
+
+/*************************************
+ *Render()
+ *
+ *This function is called to render
+ *stuff to the screen.
+ *************************************/
+void GUI::Render()
+{
+	SurfaceLoader::DrawImage(screen, GRASS, 0, 0);
+
+	SDL_Flip(screen);
+
+}
+
+/*************************************
+ *Cleanup()
+ *
+ *This function takes care of anything
+ *that needs to be done before cleanly
+ *exiting the game.
+ *************************************/
+void GUI::Cleanup()
+{
+	SDL_FreeSurface(screen);
+	SDL_FreeSurface(GRASS);
+	SDL_Quit();
+}
+
+/*************************************
+ *outputMap()
+ *
+ *This function uses a reference tile
+ *to render the rest of the map.
+ *************************************/
+void GUI::outputMap(Tile* refTile)
 {
 	//cout<<"WE WILL BE OUTPUTING THE MAP STARTING AT X = " << refTile->x << " and Y = " << refTile->y << endl;
 	
 }
 
-//grasb a ref. tile and they should be stitched together so that i can travers them all and display them
 
-//grab red tile
-//output this tile (top left of the room, eventually will be a tile near the player)
