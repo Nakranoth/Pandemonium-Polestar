@@ -14,7 +14,7 @@ class GUI
 	private:
 	bool running;
 	SDL_Surface* screen;
-	SDL_Surface* GRASS;
+	SDL_Surface* TILES;
 
 	public:
 	SDL_Event Event;

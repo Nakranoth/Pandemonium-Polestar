@@ -61,8 +61,8 @@ bool GUI::Initialize()
         	return false;
     	}
 
-	GRASS = NULL;
-	if((GRASS = SurfaceLoader::LoadImage("./grass.bmp")) == NULL) {
+	TILES = NULL;
+	if((TILES = SurfaceLoader::LoadImage("./tiles.bmp")) == NULL) {
 		return false;
 	}
 
@@ -105,10 +105,12 @@ void GUI::Render(Tile* ref)
 {
 	while(ref != NULL)
 	{
-		SurfaceLoader::DrawImage(screen, GRASS, (ref->x)*Tile::SIZE, (ref->y)*Tile::SIZE, 0, 0, Tile::SIZE, Tile::SIZE);
+		SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE, (ref->y)*Tile::SIZE, 0, 0, Tile::SIZE, Tile::SIZE);
 		ref = ref->east;
 	}
 
+	//Will go after the loop finishing the output of
+	//the map so that all tiles are rendered THEN output
 	SDL_Flip(screen);
 
 }
@@ -123,7 +125,7 @@ void GUI::Render(Tile* ref)
 void GUI::Cleanup()
 {
 	SDL_FreeSurface(screen);
-	SDL_FreeSurface(GRASS);
+	SDL_FreeSurface(TILES);
 	SDL_Quit();
 }
 
