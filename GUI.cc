@@ -66,7 +66,8 @@ bool GUI::Initialize()
     	}
 
 	TILES = NULL;
-	if((TILES = SurfaceLoader::LoadImage("./tiles.bmp")) == NULL) {
+	char file[] = "./tiles.bmp";
+	if((TILES = SurfaceLoader::LoadImage(file)) == NULL) {
 		return false;
 	}
 
@@ -104,9 +105,39 @@ void GUI::Logic()
  *************************************/
 void GUI::Render(Tile* ref)
 {
-	//Draws the image to the surface
-	SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320, (ref->y)*Tile::SIZE - charY + 240, 0, 0, Tile::SIZE, Tile::SIZE);
+	//Load the correct image for the tile depending on the type it is
+	switch(ref->sprite)
+	{
+		case Tile::UDEF:
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
+						(ref->y)*Tile::SIZE - charY + 240, 0, 0, Tile::SIZE, Tile::SIZE);
+			break;
 
+		case Tile::WALL:
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
+						(ref->y)*Tile::SIZE - charY + 240, 90, 0, Tile::SIZE, Tile::SIZE);
+			break;
+
+		case Tile::FLOOR:
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
+						(ref->y)*Tile::SIZE - charY + 240, 120, 0, Tile::SIZE, Tile::SIZE);
+			break;
+
+		case Tile::ROAD:
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
+						(ref->y)*Tile::SIZE - charY + 240, 60, 0, Tile::SIZE, Tile::SIZE);
+			break;
+
+		case Tile::GRASS:
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
+						(ref->y)*Tile::SIZE - charY + 240, 30, 0, Tile::SIZE, Tile::SIZE);
+			break;
+
+		case Tile::DOOR:
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
+						(ref->y)*Tile::SIZE - charY + 240, 0, 30, Tile::SIZE, Tile::SIZE);
+			break;
+	}
 }
 
 /*************************************
