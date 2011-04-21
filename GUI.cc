@@ -24,7 +24,7 @@ int GUI::onExecute()
         	}
 		
 		Logic();
-		Render();
+		Render(city.map->ref);
 	}
 
 	//Before exiting take care of any cleaning up
@@ -101,9 +101,13 @@ void GUI::Logic()
  *This function is called to render
  *stuff to the screen.
  *************************************/
-void GUI::Render()
+void GUI::Render(Tile* ref)
 {
-	SurfaceLoader::DrawImage(screen, GRASS, 0, 0);
+	while(ref != NULL)
+	{
+		SurfaceLoader::DrawImage(screen, GRASS, (ref->x)*Tile::SIZE, (ref->y)*Tile::SIZE, 0, 0, Tile::SIZE, Tile::SIZE);
+		ref = ref->east;
+	}
 
 	SDL_Flip(screen);
 

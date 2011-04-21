@@ -25,7 +25,7 @@ class GUI
 	bool Initialize();
 	void EventHandler(SDL_Event* Event);
 	void Logic();
-	void Render();
+	void Render(Tile* ref);
 	void Cleanup();
 	void outputMap(Tile* refTile);
 };
