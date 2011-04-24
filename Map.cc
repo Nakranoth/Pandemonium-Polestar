@@ -42,7 +42,7 @@ bool Map::populate(){
 }
 
 void Map::unstitch(Tile* ref, int width, int height){
-	//make sure it's the NW corner
+	//Give NW corner
 	for (int i = 0; i < width; i++){
 		if (ref->north){
 			ref->north->south = NULL;

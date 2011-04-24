@@ -3,25 +3,29 @@
 
 #include <vector>
 #include <math.h>
+#include <limits.h>
 
 #include "Map.h"
+#include "DimSolv.h"
 
 using namespace std;
 
 class ZBRA
 {
 	public:
-		bool shallow; //a flag to determine whether this counts for depth traversals
+		bool shallow;	//flag: counts for depth traversals.
+		bool fitted;	//flag: has a set position in the map.
 		vector<ZBRA*> subArea;	//ZBRAs within this ZBRA
-		Map* map; //tiles the ZBRA contains
-		vector<int> fops; //the FOPs of the ZBRA
+		Map* map;	//tiles the ZBRA contains
+		vector<int> fops;	//the FOPs of the ZBRA, presently a placeholder.
 		int minSize;
 		int idealSize;
 		short floor, wall;
+		bounds dims;
 	public:
 		ZBRA();
 		~ZBRA();
-		bool tryDim(int x, int y);
+		
 		
 		ZBRA* City();
 		ZBRA* House();
@@ -31,8 +35,10 @@ class ZBRA
 		ZBRA* BedRoom();
 		
 	private:
-	int getMinSize();	//Gets the sizes of this->subArea
-	int getIdealSize();
+		int getMinSize();	//Gets the sizes of this->subArea
+		int getIdealSize();
+		void solveRecursive(ZBRA* area);
+		void buildMap();
 };
 
 #endif

@@ -4,25 +4,16 @@
 
 ZBRA::ZBRA()
 {
+	dims.x1 = INT_MAX;
+	dims.x2 = INT_MAX;
+	dims.y1 = INT_MAX;
+	dims.y2 = INT_MAX;
+	dims.size = 0;
+	fitted = false;
 }
 
 ZBRA::~ZBRA(){
 	delete map;
-}
-
-bool ZBRA::tryDim(int x, int y){
-	if (x*y < minSize) return false;
-	for (vector<ZBRA*>::iterator i = subArea.begin(); i != subArea.end(); i++){
-		int siz = ceil(sqrt((*i)->idealSize));
-		(*i)->tryDim(siz,siz);
-	}
-	map = new Map(0,0,x,y,floor,wall);
-	if (map->populate()) return true;
-	else {
-		delete map;
-		map = NULL;
-		return false;
-	}
 }
 
 int ZBRA::getIdealSize(){
@@ -38,6 +29,24 @@ int ZBRA::getMinSize(){
 		size += (*i)->minSize;
 	return size;
 }
+
+void ZBRA::solveRecursive(ZBRA* area){
+	DimSolv* manage = new DimSolv(area);
+	for (vector<ZBRA*>::iterator test = area->subArea.begin(); test != area->subArea.end(); test++){
+		solveRecursive(*test);
+	}
+	delete manage;
+}
+
+void ZBRA::buildMap(){
+	//cout << dims.x1 << ',' << dims.y1 << " -> " << dims.x2 << ',' << dims.y2 << " " << fitted << endl;
+	map = new Map(dims.x1,dims.y2,dims.x2-dims.x1,dims.y2-dims.y1,floor,wall);
+	map->populate();
+	for (vector<ZBRA*>::iterator test = subArea.begin(); test != subArea.end(); test++){
+		(*test)->buildMap();
+	}
+}
+
 
 ZBRA* ZBRA::BathRoom(){
 	shallow = false;
@@ -55,9 +64,11 @@ ZBRA* ZBRA::City(){
 	subArea.push_back((new ZBRA)->House());
 	minSize = 25 + getMinSize();
 	idealSize = 35 + getIdealSize();
-	int cityDim = ceil(sqrt(idealSize));
-	tryDim(cityDim,cityDim);
-	cout << minSize << "->" << idealSize << endl;
+	//DimSolv(this);
+	//DimSolv(*subArea.begin());
+	solveRecursive(this);
+	buildMap();
+	// cout << minSize << "->" << idealSize << endl;
 	return this;
 }
 		
@@ -71,7 +82,7 @@ ZBRA* ZBRA::House(){
 	subArea.push_back((new ZBRA)->BedRoom());
 	subArea.push_back((new ZBRA)->BedRoom());
 	minSize = 20 + getMinSize();
-	idealSize = 30 + getIdealSize();
+	idealSize = 300 + getIdealSize();
 	return this;
 }
 
