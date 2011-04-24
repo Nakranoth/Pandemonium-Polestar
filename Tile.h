@@ -7,8 +7,8 @@ class Tile
 {
 	public:
 		static const int SIZE = 30;
-		static const short int UDEF = 0, WALL = 1, FLOOR = 2, ROAD = 3, GRASS = 4;
-	
+		static const short int UDEF = 0, WALL = 1, FLOOR = 2, ROAD = 3, GRASS = 4, DOOR = 5;
+
 		int x;
 		int y;
 		Uint8 sprite;

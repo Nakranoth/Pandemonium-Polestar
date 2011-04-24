@@ -26,7 +26,7 @@ class ZBRA
 		ZBRA();
 		~ZBRA();
 		
-		
+		//The functions that will help determine what this type of ZBRA will contain
 		ZBRA* City();
 		ZBRA* House();
 		ZBRA* BathRoom();

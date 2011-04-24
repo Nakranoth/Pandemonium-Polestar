@@ -12,7 +12,8 @@ ZBRA::ZBRA()
 	fitted = false;
 }
 
-ZBRA::~ZBRA(){
+ZBRA::~ZBRA()
+{
 	delete map;
 }
 
@@ -23,7 +24,8 @@ int ZBRA::getIdealSize(){
 	return size;
 }
 
-int ZBRA::getMinSize(){
+int ZBRA::getMinSize()
+{
 	int size = 0;
 	for (vector<ZBRA*>::iterator i = subArea.begin(); i != subArea.end(); i++)
 		size += (*i)->minSize;
@@ -57,11 +59,12 @@ ZBRA* ZBRA::BathRoom(){
 	return this;
 }
 
-ZBRA* ZBRA::City(){
+ZBRA* ZBRA::City()
+{
 	shallow = false;
 	floor = Tile::GRASS;
 	wall = Tile::UDEF;
-	subArea.push_back((new ZBRA)->House());
+	subArea.push_back((new ZBRA)->House()); //only one test house for now
 	minSize = 25 + getMinSize();
 	idealSize = 35 + getIdealSize();
 	//DimSolv(this);
@@ -72,10 +75,12 @@ ZBRA* ZBRA::City(){
 	return this;
 }
 		
-ZBRA* ZBRA::House(){
+ZBRA* ZBRA::House()
+{
 	shallow = false;
 	floor = Tile::FLOOR;
 	wall = Tile::WALL;
+	//for now every house will contain 1 bathroom kitchen and living room and 2 bedrooms
 	subArea.push_back((new ZBRA)->BathRoom());
 	subArea.push_back((new ZBRA)->Kitchen());
 	subArea.push_back((new ZBRA)->LivingRoom());

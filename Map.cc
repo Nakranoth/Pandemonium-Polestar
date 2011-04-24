@@ -101,4 +101,3 @@ void Map::delChunk(Tile* ref){
 		toKill.erase(it);
 	}
 }
-
