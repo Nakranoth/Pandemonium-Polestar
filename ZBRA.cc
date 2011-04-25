@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+void breakHere();
+
 ZBRA::ZBRA()
 {
 	dims.x1 = INT_MAX;
@@ -36,16 +38,112 @@ void ZBRA::solveRecursive(ZBRA* area){
 	DimSolv* manage = new DimSolv(area);
 	for (vector<ZBRA*>::iterator test = area->subArea.begin(); test != area->subArea.end(); test++){
 		solveRecursive(*test);
+		if ((*test)->dims.x1 < dims.x1 || (*test)->dims.y1 < dims.y1 || (*test)->dims.x2 > dims.x2 || (*test)->dims.y2 > dims.y2)	cerr << "BAD BOUNDS\n";
 	}
 	delete manage;
 }
 
 void ZBRA::buildMap(){
-	//cout << dims.x1 << ',' << dims.y1 << " -> " << dims.x2 << ',' << dims.y2 << " " << fitted << endl;
-	map = new Map(dims.x1,dims.y2,dims.x2-dims.x1,dims.y2-dims.y1,floor,wall);
+	map = new Map(dims.x1,dims.y1,dims.x2-dims.x1+1,dims.y2-dims.y1+1,floor,wall);
 	map->populate();
 	for (vector<ZBRA*>::iterator test = subArea.begin(); test != subArea.end(); test++){
-		(*test)->buildMap();
+		(*test)->buildMap();//readies children maps
+		
+		Tile* pPoint;	//parent reference tile outside of boundary
+		Tile* ipPoint;	//parent reference tile inside of boundary
+		Tile* cPoint;	//child reference tile for stiching
+		
+		ipPoint = map->ref;
+		cPoint = (*test)->map->ref;
+
+		while (ipPoint->x < cPoint->x){
+if (ipPoint->east == NULL) breakHere();
+			ipPoint = ipPoint->east;
+		}
+		while (ipPoint->y < cPoint->y){
+if (ipPoint->south == NULL) breakHere();
+			ipPoint = ipPoint->south;
+		}
+		
+		bool north, south, east, west;
+		north = south = east = west = true;
+		
+		if (dims.x1 == (*test)->dims.x1) west = false;
+		if (dims.y1 == (*test)->dims.y1) north = false;
+		if (dims.x2 == (*test)->dims.x2) east = false;
+		if (dims.y2 == (*test)->dims.y2) south = false;
+		
+		int orient = 3;	//0 = north, 1 = east, 2 = south, 3 = west/none
+		if (!west && !north){
+			orient = 0;
+			if (!east) orient = 1;
+			if (!south)	{	//bounds are synonomous, rebind parent.
+				delete map;
+				map = (*test)->map;
+			}
+		}
+		else{
+			if (!north) orient = 0;
+			if (!east) orient = 1;
+			if (!south) orient = 2;
+			if (!west) orient = 3;
+		}
+		switch (orient){
+			case 0: 
+				pPoint = ipPoint;
+				//if(pPoint->east == NULL) breakHere();
+				while(cPoint->east != NULL){
+					cPoint = cPoint->east;
+					pPoint = pPoint->east;
+					//if(cPoint->x != pPoint->x)breakHere();
+					//if(cPoint->y != pPoint->y)breakHere();
+					//if(pPoint->east == NULL)breakHere();
+				}
+				pPoint = pPoint->east;
+				break;
+			case 1:
+				pPoint = ipPoint;
+				
+				while(cPoint->east != NULL){
+					cPoint = cPoint->east;
+					//if(pPoint->east == NULL)breakHere();
+					pPoint = pPoint->east;
+					//if(cPoint->x != pPoint->x)breakHere();
+					//if(cPoint->y != pPoint->y)breakHere();
+				}
+				//if(pPoint->south == NULL)breakHere();
+				while(cPoint->south != NULL){
+					cPoint = cPoint->south;
+					pPoint = pPoint->south;
+					//if(cPoint->x != pPoint->x)breakHere();
+					//if(cPoint->y != pPoint->y)breakHere();
+					//if(pPoint->south == NULL)breakHere();
+				}
+				pPoint = pPoint->south;
+				break;
+			case 2:
+				pPoint = ipPoint;
+					if (cPoint->x != pPoint->x || cPoint->y != pPoint->y) breakHere();
+				while(cPoint->south != NULL){
+					if(cPoint->south->y - 1 != cPoint->y) breakHere(); 
+					cPoint = cPoint->south;
+					if(pPoint->south->y - 1 != pPoint->y) breakHere();
+					pPoint = pPoint->south;
+					if(cPoint->x != pPoint->x)breakHere();
+					if(cPoint->y != pPoint->y)breakHere();
+				}
+				if(pPoint->west != NULL);
+				pPoint = pPoint->west;
+				break;
+			case 3:
+				pPoint = ipPoint->north;
+				break;
+		}
+		//Map::unstitch(ipPoint,(*test)->dims.x2 - (*test)->dims.x1,(*test)->dims.y2 - (*test)->dims.y1);
+		//Map::delChunk(ipPoint);
+		if(pPoint->x > cPoint->x + 1 || pPoint->x < cPoint->x - 1 || pPoint->y > cPoint->y + 1 || pPoint->y < cPoint->y - 1 ) {breakHere(); cerr << "\nbroken\n";}
+		Map::stitch(pPoint,cPoint,(*test)->wall, orient);
+		Map::checkConsistency((*test)->map->ref);
 	}
 }
 
@@ -71,7 +169,6 @@ ZBRA* ZBRA::City()
 	//DimSolv(*subArea.begin());
 	solveRecursive(this);
 	buildMap();
-	// cout << minSize << "->" << idealSize << endl;
 	return this;
 }
 		
@@ -87,7 +184,7 @@ ZBRA* ZBRA::House()
 	subArea.push_back((new ZBRA)->BedRoom());
 	subArea.push_back((new ZBRA)->BedRoom());
 	minSize = 20 + getMinSize();
-	idealSize = 300 + getIdealSize();
+	idealSize = 30 + getIdealSize();
 	return this;
 }
 
@@ -97,6 +194,7 @@ ZBRA* ZBRA::Kitchen(){
 	wall = Tile::WALL;
 	minSize = 25;
 	idealSize = 40;
+	return this;
 }
 
 ZBRA* ZBRA::LivingRoom(){
@@ -105,6 +203,7 @@ ZBRA* ZBRA::LivingRoom(){
 	wall = Tile::WALL;
 	minSize = 30;
 	idealSize = 45;
+	return this;
 }
 
 ZBRA* ZBRA::BedRoom(){
@@ -113,4 +212,5 @@ ZBRA* ZBRA::BedRoom(){
 	wall = Tile::WALL;
 	minSize = 20;
 	idealSize = 35;
+	return this;
 }

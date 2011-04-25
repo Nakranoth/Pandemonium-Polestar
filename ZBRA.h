@@ -4,6 +4,7 @@
 #include <vector>
 #include <math.h>
 #include <limits.h>
+#include <assert.h>
 
 #include "Map.h"
 #include "DimSolv.h"

@@ -1,5 +1,17 @@
-all:
-	g++ -l SDL -g Main.cc GUI.cc ZBRA.cc Map.cc Tile.cc SurfaceLoader.cc Events.cc -o PP
+CC=g++
+CFLAGS=-c -g -Wall 
+LDFLAGS=-lSDL
+SOURCES=Main.cc GUI.cc SurfaceLoader.cc Events.cc ZBRA.cc DimSolv.cc Map.cc Tile.cc
+OBJECTS=$(SOURCES:.cc=.o)
+EXECUTABLE=PP
+
+all: $(SOURCES) $(EXECUTABLE)
+	
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+
+.cc.o:
+	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm PP
+	rm *.o PP

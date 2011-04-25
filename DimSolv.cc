@@ -24,7 +24,6 @@ DimSolv::DimSolv(ZBRA* solveme){
 	}
 	
 	pBounds->size = (pBounds->x2 - pBounds->x1) * (pBounds->y2 - pBounds->y1);
-	cout << pBounds->size << " " << solveme->dims.size << endl;
 	avail.push_back(new bounds(*pBounds));
 	
 	//pBounds now represents the total bounds available for the area.

@@ -20,11 +20,10 @@ int GUI::onExecute()
 		//Poll for events from the user
 		while(SDL_PollEvent(&Event))
 		{
-            		EventHandler(&Event);
-        	}
-		
-		Logic();
-		RenderMap(city.map->ref);
+			EventHandler(&Event);
+		}
+			Logic();
+			RenderMap(city.map->ref);
 	}
 
 	//Before exiting take care of any cleaning up
@@ -106,7 +105,7 @@ void GUI::Logic()
 void GUI::Render(Tile* ref)
 {
 	//Load the correct image for the tile depending on the type it is
-	switch(ref->sprite)
+	switch(ref->type)
 	{
 		case Tile::UDEF:
 			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
@@ -173,9 +172,9 @@ void GUI::RenderMap(Tile* refTile)
 	set<Tile*> isRendered;
 
 	//While there is still stuff to render...
+	set<Tile*>::iterator it;//declared before loop to avoid mem leak.
 	while(!toRender.empty())
 	{
-		set<Tile*>::iterator it;
 		it = toRender.begin();
 		Tile* curr = *it;
 
