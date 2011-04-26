@@ -273,6 +273,12 @@ void GUI::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 	{
 		onExit();
 	}
+	//character presses button, we want to do a check for objects
+	//Right CTRL
+	if(sym == 30)
+	{
+		
+	}
 }
 
 void GUI::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode)
