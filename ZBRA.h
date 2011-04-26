@@ -8,6 +8,7 @@
 
 #include "Map.h"
 #include "DimSolv.h"
+#include "FOP.h"
 
 using namespace std;
 
@@ -19,7 +20,7 @@ class ZBRA
 		vector<ZBRA*> subArea;	//ZBRAs within this ZBRA
 		ZBRA** subAreaArray;	//For Debugging purposes only.
 		Map* map;	//tiles the ZBRA contains
-		vector<int> fops;	//the FOPs of the ZBRA, presently a placeholder.
+		vector<FOP*> fops;	//the FOPs of the ZBRA
 		int minSize;
 		int idealSize;
 		short floor, wall;
@@ -41,6 +42,7 @@ class ZBRA
 		int getIdealSize();
 		void solveRecursive(ZBRA* area);
 		void buildMap();
+		void AddFop(FOP* fop); //builds list of fops contained in this ZBRA
 };
 
 #endif

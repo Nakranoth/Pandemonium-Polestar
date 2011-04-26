@@ -19,9 +19,11 @@ class GUI : public Events
 
 	public:
 	SDL_Event Event;
-	ZBRA city;
-	int charX;
-	int charY;
+	ZBRA city;	//declaration of the highest ZBRA (city)
+	int charX;	//X position of the player
+	int charY;	//Y position of the player
+	int charXvel;	//X velocity of the player
+	int charYvel;	//Y velocity of the player
 
 	public:
 	int onExecute();
@@ -34,6 +36,7 @@ class GUI : public Events
 	void RenderMap(Tile* refTile);
 
 	void OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode);
+	void OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode);
 };
 
 #endif

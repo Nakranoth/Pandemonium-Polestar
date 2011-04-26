@@ -153,14 +153,9 @@ if (ipPoint->south == NULL) breakHere();
 	}
 }
 
-
-ZBRA* ZBRA::BathRoom(){
-	shallow = false;
-	minSize = 20;
-	idealSize = 30;
-	floor = Tile::FLOOR;
-	wall = Tile::WALL;
-	return this;
+void ZBRA::AddFop(FOP* fop)
+{
+	fops.push_back(fop);
 }
 
 ZBRA* ZBRA::City()
@@ -181,7 +176,7 @@ ZBRA* ZBRA::City()
 ZBRA* ZBRA::House()
 {
 	shallow = false;
-	floor = Tile::FLOOR;
+	floor = Tile::HOUSE;
 	wall = Tile::WALL;
 	//for now every house will contain 1 bathroom kitchen and living room and 2 bedrooms
 	subArea.push_back((new ZBRA)->BathRoom());
@@ -189,15 +184,30 @@ ZBRA* ZBRA::House()
 	subArea.push_back((new ZBRA)->LivingRoom());
 	subArea.push_back((new ZBRA)->BedRoom());
 	subArea.push_back((new ZBRA)->BedRoom());
+	//for now every house will contain 1 cat
+	AddFop((new FOP)->Cat());
 	minSize = 20 + getMinSize();
 	idealSize = 30 + getIdealSize();
 	return this;
 }
 
+ZBRA* ZBRA::BathRoom(){
+	shallow = false;
+	minSize = 20;
+	idealSize = 30;
+	floor = Tile::BATHROOM;
+	wall = Tile::WALL;
+	//every bathroom for now will contain only 1 toilet
+	AddFop((new FOP)->Toilet());
+	return this;
+}
+
 ZBRA* ZBRA::Kitchen(){
 	shallow = false;
-	floor = Tile::FLOOR;
+	floor = Tile::KITCHEN;
 	wall = Tile::WALL;
+	//every kitchen for now will contain only 1 fridge
+	AddFop((new FOP)->Refrigerator());
 	minSize = 25;
 	idealSize = 40;
 	return this;
@@ -207,6 +217,8 @@ ZBRA* ZBRA::LivingRoom(){
 	shallow = false;
 	floor = Tile::FLOOR;
 	wall = Tile::WALL;
+	//every living room for now will contain only 1 sofa
+	AddFop((new FOP)->Sofa());
 	minSize = 30;
 	idealSize = 45;
 	return this;
@@ -214,8 +226,10 @@ ZBRA* ZBRA::LivingRoom(){
 
 ZBRA* ZBRA::BedRoom(){
 	shallow = false;
-	floor = Tile::FLOOR;
+	floor = Tile::BEDROOM;
 	wall = Tile::WALL;
+	//every bedroom for now will contain only 1 bed
+	AddFop((new FOP)->Bed());
 	minSize = 20;
 	idealSize = 35;
 	return this;
