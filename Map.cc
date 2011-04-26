@@ -1,4 +1,9 @@
 #include "Map.h"
+#include "DimSolv.h"
+
+
+#include <iostream>
+void breakHere(){cerr << "Broken\n";}
 
 using namespace std;
 
@@ -22,13 +27,13 @@ Map::~Map(){
 	delete [] area;
 }
 
-bool Map::populate(){
-	area[0][0].sprite = floor;
+void Map::populate(){
+	area[0][0].type = floor;
 	area[0][0].x = x;
 	area[0][0].y = y;
-	for (int i = 0;i < xsiz; i++){
-		for (int j = 0; j < ysiz; j++){
-			area[i][j].sprite = floor;
+	for (int i = xsiz - 1;i >= 0; i--){
+		for (int j = ysiz - 1; j >= 0; j--){
+			area[i][j].type = floor;
 			area[i][j].x = i+x;
 			area[i][j].y = j+y;
 			
@@ -38,11 +43,66 @@ bool Map::populate(){
 			if (j < ysiz - 1) area[i][j].south = &area[i][j+1];
 		}
 	}
-	return true;
+	
+	checkConsistency(ref);
+}
+
+void Map::checkConsistency(Tile* ref){
+	set<Tile*> toCheck;
+	toCheck.insert(ref);
+
+	//create a list of things that have already been rendered
+	set<Tile*> isChecked;
+
+	//While there is still stuff to render...
+	set<Tile*>::iterator it;//declared before loop to avoid mem leak.
+	while(!toCheck.empty())
+	{
+		it = toCheck.begin();
+		Tile* curr = *it;
+
+		if (curr->north && !isChecked.count(curr->north)){
+			toCheck.insert(curr->north);
+		}
+		if (curr->west && !isChecked.count(curr->west)){
+			toCheck.insert(curr->west);
+		}
+		if (curr->south && !isChecked.count(curr->south)){
+			toCheck.insert(curr->south);
+		}
+		if (curr->east && !isChecked.count(curr->east)){
+			toCheck.insert(curr->east);
+		}
+		
+		if(curr->north){
+			if(curr->x != curr->north->x)	cerr << "InconsNorthX " << curr->x << curr->north->x << "\n" ;
+			if(curr->y != curr->north->y + 1)	cerr << "InconsNorthY\n";
+		}
+		
+		if(curr->west){
+			if(curr->x != curr->west->x + 1)	cerr << "InconsWestX\n";
+			if(curr->y != curr->west->y)	cerr << "InconsWestY\n";
+		}
+		
+		if(curr->south){
+			if(curr->x != curr->south->x)	cerr << "InconsSouthX\n";
+			if(curr->y != curr->south->y - 1)	cerr << "InconsSouthY\n";
+		}
+			
+		if(curr->east){
+			if(curr->x != curr->east->x - 1)	cerr << "InconsEastX\n";
+			if(curr->y != curr->east->y)	cerr << "InconsEastY\n";
+		}
+		
+		
+		
+		isChecked.insert(curr);
+		toCheck.erase(it);
+	}
 }
 
 void Map::unstitch(Tile* ref, int width, int height){
-	//make sure it's the NW corner
+	//Give NW corner
 	for (int i = 0; i < width; i++){
 		if (ref->north){
 			ref->north->south = NULL;
@@ -99,5 +159,157 @@ void Map::delChunk(Tile* ref){
 		delete curr;
 		curr = NULL;
 		toKill.erase(it);
+	}
+}
+
+void Map::stitch(Tile* pRef, Tile* cRef, int wall, int orient){
+	Tile* inRunner = cRef;
+	Tile* outRunner = pRef;
+	
+	switch(orient){
+		case 0:
+			runSouth(inRunner,outRunner,wall,orient,true);
+			break;
+		case 1:
+			runWest(inRunner,outRunner,wall,orient,true);
+			break;
+		case 2:
+			runNorth(inRunner,outRunner,wall,orient,true);
+			break;
+		case 3:
+			runEast(inRunner,outRunner,wall,orient,true);
+			break;
+	}
+}
+
+void Map::runEast(Tile* inRunner, Tile* outRunner, int wall,int orient, bool first){
+//cover the north wall
+	if (orient == 3 && !first) return;
+	first = false;
+	if (wall != Tile::UDEF) outRunner->type = wall;
+	if (outRunner->x == inRunner->x - 1){
+		outRunner = outRunner->east;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+	}
+	while(inRunner->east != NULL){
+		assert(outRunner->x == inRunner->x);
+		assert(outRunner->y == inRunner->y - 1);
+		outRunner->south = inRunner;
+		inRunner->north = outRunner;
+		outRunner = outRunner->east;
+		inRunner = inRunner->east;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+	}
+	if (outRunner->east != NULL){
+		assert(outRunner->x == inRunner->x);
+		assert(outRunner->y == inRunner->y - 1);
+		outRunner = outRunner->east;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+		if (outRunner->south == NULL) breakHere();
+		outRunner = outRunner->south;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+		assert(outRunner->x == inRunner->x + 1);
+		assert(outRunner->y == inRunner->y);
+		runSouth(inRunner,outRunner,wall,orient,first);
+	}
+}
+
+void Map::runSouth(Tile* inRunner, Tile* outRunner, int wall, int orient, bool first){
+//cover the east wall
+	if (orient == 0 && !first) return;
+	first = false;
+	if (wall != Tile::UDEF) outRunner->type = wall;
+	if (outRunner->y == inRunner->y + 1){
+		assert(outRunner->south != NULL);
+		outRunner = outRunner->south;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+	}
+	while(inRunner->south != NULL){
+		assert(outRunner->south != NULL);
+		assert(outRunner->x == inRunner->x + 1);
+		assert(outRunner->y == inRunner->y);
+		outRunner->west = inRunner;
+		inRunner->east = outRunner;
+		outRunner = outRunner->south;
+		inRunner = inRunner->south;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+	}
+	if (outRunner->south != NULL){
+		assert(outRunner->x == inRunner->x + 1);
+		assert(outRunner->y == inRunner->y);
+		outRunner = outRunner->south;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+		assert(outRunner->west != NULL);
+		outRunner = outRunner->west;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+		assert(outRunner->x == inRunner->x);
+		assert(outRunner->y == inRunner->y + 1);
+		runWest(inRunner,outRunner,wall,orient,first);
+	}
+}
+
+void Map::runWest(Tile* inRunner, Tile* outRunner, int wall,int orient, bool first){
+//cover the north wall
+	if (orient == 1 && !first) return;
+	first = false;
+	if (wall != Tile::UDEF) outRunner->type = wall;
+	if (outRunner->x == inRunner->x + 1){
+		assert(outRunner->west != NULL);
+		outRunner = outRunner->west;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+	}
+	while(inRunner->west != NULL){
+		assert(outRunner->x == inRunner->x);
+		assert(outRunner->y == inRunner->y + 1);
+		outRunner->north = inRunner;
+		inRunner->south = outRunner;
+		outRunner = outRunner->west;
+		inRunner = inRunner->west;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+	}
+	if (outRunner->west != NULL){
+		assert(outRunner->x == inRunner->x);
+		assert(outRunner->y == inRunner->y + 1);
+		outRunner = outRunner->west;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+		assert(outRunner->north != NULL);
+		outRunner = outRunner->north;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+		assert(outRunner->x == inRunner->x - 1);
+		assert(outRunner->y == inRunner->y);
+		runNorth(inRunner,outRunner,wall,orient,first);
+	}
+}
+
+void Map::runNorth(Tile* inRunner, Tile* outRunner, int wall, int orient, bool first){
+//cover the east wall
+	if (orient == 2 && !first) return;
+	first = false;
+	if (wall != Tile::UDEF) outRunner->type = wall;
+	if (outRunner->y == inRunner->y - 1){
+		assert(outRunner->north != NULL);
+		outRunner = outRunner->north;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+	}
+	while(inRunner->north != NULL){
+		assert(outRunner->x == inRunner->x - 1);
+		assert(outRunner->y == inRunner->y);
+		outRunner->east = inRunner;
+		inRunner->west = outRunner;
+		outRunner = outRunner->north;
+		inRunner = inRunner->north;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+	}
+	if (outRunner->north != NULL){
+		assert(outRunner->x == inRunner->x - 1);
+		assert(outRunner->y == inRunner->y);
+		outRunner = outRunner->north;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+		assert(outRunner->east != NULL);
+		outRunner = outRunner->east;
+		if (wall != Tile::UDEF) outRunner->type = wall;
+		assert(outRunner->x == inRunner->x);
+		assert(outRunner->y == inRunner->y - 1);
+		runEast(inRunner,outRunner,wall,orient,first);
 	}
 }

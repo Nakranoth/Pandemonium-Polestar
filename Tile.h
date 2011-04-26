@@ -11,7 +11,7 @@ class Tile
 
 		int x;
 		int y;
-		Uint8 sprite;
+		Uint8 type;
 		bool solid;
 		Tile* north;
 		Tile* south;

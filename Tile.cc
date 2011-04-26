@@ -1,6 +1,6 @@
 #include "Tile.h"
 
-Tile::Tile(int _x, int _y, Uint8 _sprite, bool _solid) :x(_x),y(_y),sprite(_sprite),solid(_solid)
+Tile::Tile(int _x, int _y, Uint8 _type, bool _solid) :x(_x),y(_y),type(_type),solid(_solid)
 {
 	north = NULL;
 	south = NULL;
@@ -14,7 +14,7 @@ Tile::Tile()
 	south = NULL;
 	east = NULL;
 	west = NULL;
-	x = y = sprite = solid = 0;
+	x = y = type = solid = 0;
 }
 
 Tile::~Tile()
