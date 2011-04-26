@@ -4,12 +4,12 @@
 
 FOP::FOP()
 {
-	bool fitted = false;
-	int isSolid = 1;
-	int width = 0;
-	int length = 0;
-	int x = 0;
-	int y = 0;
+	fitted = false;
+	isSolid = 1;
+	width = 0;
+	length = 0;
+	x = 0;
+	y = 0;
 }
 
 FOP::~FOP()
@@ -60,5 +60,25 @@ FOP* FOP::Cat()
 	width = Tile::SIZE;
 	length = Tile::SIZE;
 	actions.push_back(Action::PET);
+	return this;
+}
+
+FOP* FOP::Character(int x, int y, Tile* ref)
+{
+	this->x = x;
+	this->y = y;
+	width = Tile::SIZE;
+	length = Tile::SIZE;
+	location = ref;
+
+	while(location->x < x/Tile::SIZE)
+	{
+		location = location->east;
+	}
+	while(location->y < y/Tile::SIZE)
+	{
+		location = location->south;
+	}
+
 	return this;
 }

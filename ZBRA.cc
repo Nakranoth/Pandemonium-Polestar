@@ -159,11 +159,12 @@ ZBRA* ZBRA::City()
 	wall = Tile::UDEF;
 	subArea.push_back((new ZBRA)->House()); //only one test house for now
 	minSize = 25 + getMinSize();
-	idealSize = 35 + getIdealSize();
+	idealSize = 35 + getIdealSize()+400;
 	//DimSolv(this);
 	//DimSolv(*subArea.begin());
 	solveRecursive(this);
 	buildMap();
+	AddFop((new FOP)->Character(320, 240, map->ref));
 	return this;
 }
 		

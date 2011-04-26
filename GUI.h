@@ -8,6 +8,7 @@
 #include "Tile.h"
 #include "SurfaceLoader.h"
 #include "Events.h"
+#include "FOP.h"
 
 class GUI : public Events
 {
@@ -16,10 +17,12 @@ class GUI : public Events
 	bool running;
 	SDL_Surface* screen;
 	SDL_Surface* TILES;
+	SDL_Surface* CHARACTER;
 
 	public:
 	SDL_Event Event;
 	ZBRA city;	//declaration of the highest ZBRA (city)
+	FOP* character; //declaration of the character pointing to any FOP being controlled by the player
 	int charX;	//X position of the player
 	int charY;	//Y position of the player
 	int charXvel;	//X velocity of the player

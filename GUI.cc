@@ -42,13 +42,12 @@ bool GUI::Initialize()
 {
 	//sets up the ZBRA 'city' to be a city
 	city.City();
+	character = city.fops[0];
 
 	//setting running to true
 	running = true;
 
-	//setting up testing charx and chary positions....(observer persay)
-	charX = 320;
-	charY = 240;
+	//setting up testing x and y velocities for holding down keys use
 	charXvel = 0;
 	charYvel = 0;
 
@@ -78,6 +77,12 @@ bool GUI::Initialize()
 		return false;
 	}
 
+	CHARACTER = NULL;
+	char file2[] = "./char.bmp";
+	if((CHARACTER = SurfaceLoader::LoadImage(file2)) == NULL) {
+		return false;
+	}
+
 	return true;
 }
 
@@ -101,9 +106,42 @@ void GUI::EventHandler(SDL_Event* Event)
  *************************************/
 void GUI::Logic()
 {
+	if(character->x / Tile::SIZE < character->location->x)
+	{
+		if(character->location->west->type == Tile::WALL){
+			character->x -= charXvel*Tile::SIZE;
+		}
+		else
+		character->location = character->location->west;
+	}
+	if(character->x / Tile::SIZE > character->location->x)
+	{
+		if(character->location->east->type == Tile::WALL){
+			character->x -= charXvel*Tile::SIZE;
+		}
+		else
+		character->location = character->location->east;
+	}
+	if(character->y / Tile::SIZE < character->location->y)
+	{
+		if(character->location->north->type == Tile::WALL){
+			character->y -= charYvel*Tile::SIZE;
+		}
+		else
+		character->location = character->location->north;
+	}
+	if(character->y / Tile::SIZE > character->location->y)
+	{
+		if(character->location->south->type == Tile::WALL){
+			character->y -= charYvel*Tile::SIZE;
+		}
+		else
+		character->location = character->location->south;
+	}
+
 	//Move the character based on its velocity (can be 0)
-	charX += charXvel;
-	charY += charYvel;
+	character->x += charXvel;
+	character->y += charYvel;
 }
 
 /*************************************
@@ -114,58 +152,64 @@ void GUI::Logic()
  *************************************/
 void GUI::Render(Tile* ref)
 {
+	//Draw the character everytime
+	SurfaceLoader::DrawImage(screen, CHARACTER, 320, 240, 0, 0, Tile::SIZE, Tile::SIZE);
+
+	//Draw the location tile of the character (should be under character)
+	SurfaceLoader::DrawImage(screen, TILES, (character->location->x)*Tile::SIZE, (character->location->y)*Tile::SIZE, 120, 30, Tile::SIZE, Tile::SIZE);
+
 	//Load the correct image for the tile depending on the type it is
 	switch(ref->type)
 	{
 		case Tile::WALL:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
-						(ref->y)*Tile::SIZE - charY + 240, 90, 0, Tile::SIZE, Tile::SIZE);
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+						(ref->y)*Tile::SIZE + (240 - character->y), 90, 0, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::FLOOR:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
-						(ref->y)*Tile::SIZE - charY + 240, 120, 0, Tile::SIZE, Tile::SIZE);
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+						(ref->y)*Tile::SIZE + (240 - character->y), 120, 0, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::ROAD:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
-						(ref->y)*Tile::SIZE - charY + 240, 60, 0, Tile::SIZE, Tile::SIZE);
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+						(ref->y)*Tile::SIZE + (240 - character->y), 60, 0, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::GRASS:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
-						(ref->y)*Tile::SIZE - charY + 240, 30, 0, Tile::SIZE, Tile::SIZE);
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+						(ref->y)*Tile::SIZE + (240 - character->y), 30, 0, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::DOOR:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
-						(ref->y)*Tile::SIZE - charY + 240, 0, 30, Tile::SIZE, Tile::SIZE);
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+						(ref->y)*Tile::SIZE + (240 - character->y), 0, 30, Tile::SIZE, Tile::SIZE);
 			break;
 		
 		case Tile::KITCHEN:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
-						(ref->y)*Tile::SIZE - charY + 240, 30, 30, Tile::SIZE, Tile::SIZE);
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+						(ref->y)*Tile::SIZE + (240 - character->y), 30, 30, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::BATHROOM:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
-						(ref->y)*Tile::SIZE - charY + 240, 60, 30, Tile::SIZE, Tile::SIZE);
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+						(ref->y)*Tile::SIZE + (240 - character->y), 60, 30, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::BEDROOM:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
-						(ref->y)*Tile::SIZE - charY + 240, 90, 30, Tile::SIZE, Tile::SIZE);
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+						(ref->y)*Tile::SIZE + (240 - character->y), 90, 30, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::HOUSE:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
-						(ref->y)*Tile::SIZE - charY + 240, 120, 30, Tile::SIZE, Tile::SIZE);
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+						(ref->y)*Tile::SIZE + (240 - character->y), 0, 60, Tile::SIZE, Tile::SIZE);
 			break;
 
 		default:
 		case Tile::UDEF:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
-						(ref->y)*Tile::SIZE - charY + 240, 0, 0, Tile::SIZE, Tile::SIZE);
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+						(ref->y)*Tile::SIZE + (240 - character->y), 0, 0, Tile::SIZE, Tile::SIZE);
 			break;
 	}
 }
@@ -249,22 +293,22 @@ void GUI::onExit()
 void GUI::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 {
 	//UP
-	if(sym == 273)
+	if(sym == 273 && character->location->north->type != Tile::WALL)
 	{
 		charYvel -= 2;
 	}
 	//DOWN
-	if(sym == 274)
+	if(sym == 274  && character->location->south->type != Tile::WALL)
 	{
 		charYvel += 2;
 	}
 	//LEFT
-	if(sym == 276)
+	if(sym == 276  && character->location->west->type != Tile::WALL)
 	{
 		charXvel -= 2;
 	}
 	//RIGHT
-	if(sym == 275)
+	if(sym == 275  && character->location->east->type != Tile::WALL)
 	{
 		charXvel += 2;
 	}

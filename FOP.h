@@ -18,6 +18,7 @@ class FOP
 		int length; //holds the pixel length of the FOP
 		int x;
 		int y;
+		Tile* location; //holds the tile that the FOP is located on
 	public:
 		FOP();
 		~FOP();
@@ -28,6 +29,7 @@ class FOP
 		FOP* Toilet();
 		FOP* Bed();
 		FOP* Cat();
+		FOP* Character(int x, int y, Tile* ref);
 		
 	private:
 		int getSize();	//Gets the length and width of the FOP
