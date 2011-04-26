@@ -24,7 +24,7 @@ int GUI::onExecute()
         	}
 		
 		Logic();
-		RenderMap(city.map->ref);
+		RenderMap(city.getRefTile());
 	}
 
 	//Before exiting take care of any cleaning up
