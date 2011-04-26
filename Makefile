@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-c -g -Wall 
 LDFLAGS=-lSDL
-SOURCES=Main.cc GUI.cc SurfaceLoader.cc Events.cc ZBRA.cc DimSolv.cc Map.cc Tile.cc
+SOURCES=Main.cc GUI.cc SurfaceLoader.cc Events.cc ZBRA.cc DimSolv.cc Map.cc Tile.cc FOP.cc
 OBJECTS=$(SOURCES:.cc=.o)
 EXECUTABLE=PP
 

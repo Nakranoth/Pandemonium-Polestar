@@ -49,12 +49,20 @@ bool GUI::Initialize()
 	//setting up testing charx and chary positions....(observer persay)
 	charX = 320;
 	charY = 240;
+	charXvel = 0;
+	charYvel = 0;
 
 	//Telling SDL to initialize everything it has...
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
 	{
         	return false;
     	}
+
+	//Setting the Icon of the window
+	SDL_WM_SetIcon(SDL_LoadBMP("icon.bmp"), NULL);
+
+	//Setting the title of the window
+	SDL_WM_SetCaption("Pandemonium Polestar","Pandemonium Polestar");
 
 	//attempting to set the screen's properties, exit with error otherwise
 	//initializing the screen to null
@@ -93,7 +101,9 @@ void GUI::EventHandler(SDL_Event* Event)
  *************************************/
 void GUI::Logic()
 {
-
+	//Move the character based on its velocity (can be 0)
+	charX += charXvel;
+	charY += charYvel;
 }
 
 /*************************************
@@ -107,11 +117,6 @@ void GUI::Render(Tile* ref)
 	//Load the correct image for the tile depending on the type it is
 	switch(ref->type)
 	{
-		case Tile::UDEF:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
-						(ref->y)*Tile::SIZE - charY + 240, 0, 0, Tile::SIZE, Tile::SIZE);
-			break;
-
 		case Tile::WALL:
 			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
 						(ref->y)*Tile::SIZE - charY + 240, 90, 0, Tile::SIZE, Tile::SIZE);
@@ -135,6 +140,32 @@ void GUI::Render(Tile* ref)
 		case Tile::DOOR:
 			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
 						(ref->y)*Tile::SIZE - charY + 240, 0, 30, Tile::SIZE, Tile::SIZE);
+			break;
+		
+		case Tile::KITCHEN:
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
+						(ref->y)*Tile::SIZE - charY + 240, 30, 30, Tile::SIZE, Tile::SIZE);
+			break;
+
+		case Tile::BATHROOM:
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
+						(ref->y)*Tile::SIZE - charY + 240, 60, 30, Tile::SIZE, Tile::SIZE);
+			break;
+
+		case Tile::BEDROOM:
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
+						(ref->y)*Tile::SIZE - charY + 240, 90, 30, Tile::SIZE, Tile::SIZE);
+			break;
+
+		case Tile::HOUSE:
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
+						(ref->y)*Tile::SIZE - charY + 240, 120, 30, Tile::SIZE, Tile::SIZE);
+			break;
+
+		default:
+		case Tile::UDEF:
+			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE - charX + 320,
+						(ref->y)*Tile::SIZE - charY + 240, 0, 0, Tile::SIZE, Tile::SIZE);
 			break;
 	}
 }
@@ -220,22 +251,51 @@ void GUI::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 	//UP
 	if(sym == 273)
 	{
-		charY -= 10;
+		charYvel -= 2;
 	}
 	//DOWN
 	if(sym == 274)
 	{
-		charY += 10;
+		charYvel += 2;
 	}
 	//LEFT
 	if(sym == 276)
 	{
-		charX -= 10;
+		charXvel -= 2;
 	}
 	//RIGHT
 	if(sym == 275)
 	{
-		charX += 10;
+		charXvel += 2;
+	}
+	//ESCAPE
+	if(sym == 27)
+	{
+		onExit();
+	}
+}
+
+void GUI::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode)
+{
+	//UP
+	if(sym == 273)
+	{
+		charYvel = 0;
+	}
+	//DOWN
+	if(sym == 274)
+	{
+		charYvel = 0;
+	}
+	//LEFT
+	if(sym == 276)
+	{
+		charXvel = 0;
+	}
+	//RIGHT
+	if(sym == 275)
+	{
+		charXvel = 0;
 	}
 	//ESCAPE
 	if(sym == 27)

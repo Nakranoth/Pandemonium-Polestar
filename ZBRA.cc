@@ -152,7 +152,7 @@ ZBRA* ZBRA::BathRoom(){
 	shallow = false;
 	minSize = 20;
 	idealSize = 30;
-	floor = Tile::FLOOR;
+	floor = Tile::BATHROOM;
 	wall = Tile::WALL;
 	return this;
 }
@@ -175,7 +175,7 @@ ZBRA* ZBRA::City()
 ZBRA* ZBRA::House()
 {
 	shallow = false;
-	floor = Tile::FLOOR;
+	floor = Tile::HOUSE;
 	wall = Tile::WALL;
 	//for now every house will contain 1 bathroom kitchen and living room and 2 bedrooms
 	subArea.push_back((new ZBRA)->BathRoom());
@@ -190,7 +190,7 @@ ZBRA* ZBRA::House()
 
 ZBRA* ZBRA::Kitchen(){
 	shallow = false;
-	floor = Tile::FLOOR;
+	floor = Tile::KITCHEN;
 	wall = Tile::WALL;
 	minSize = 25;
 	idealSize = 40;
@@ -208,7 +208,7 @@ ZBRA* ZBRA::LivingRoom(){
 
 ZBRA* ZBRA::BedRoom(){
 	shallow = false;
-	floor = Tile::FLOOR;
+	floor = Tile::BEDROOM;
 	wall = Tile::WALL;
 	minSize = 20;
 	idealSize = 35;
