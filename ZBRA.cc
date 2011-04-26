@@ -145,6 +145,12 @@ if (ipPoint->south == NULL) breakHere();
 		Map::stitch(pPoint,cPoint,(*test)->wall, orient);
 		Map::checkConsistency((*test)->map->ref);
 	}
+	subAreaArray = new ZBRA*[subArea.size()];
+	int i = 0;
+	for (vector<ZBRA*>::iterator test = subArea.begin(); test != subArea.end(); test++){
+		subAreaArray[i] = *test;
+		i++;
+	}
 }
 
 
@@ -164,7 +170,7 @@ ZBRA* ZBRA::City()
 	wall = Tile::UDEF;
 	subArea.push_back((new ZBRA)->House()); //only one test house for now
 	minSize = 25 + getMinSize();
-	idealSize = 35 + getIdealSize();
+	idealSize = 90 + getIdealSize();
 	//DimSolv(this);
 	//DimSolv(*subArea.begin());
 	solveRecursive(this);

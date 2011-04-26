@@ -279,37 +279,39 @@ void DimSolv::boundsPairReduction(bounds* coord, bounds* pBounds, vector<ZBRA*>:
 	for (vector<ZBRA*>::iterator i = fChild.begin(); i != fChild.end(); i++){
 		if (i != j){
 			int wallCorr = ((*i)->wall != Tile::UDEF)?1:0;
-			if (into->y1 >= (*i)->dims.y1 - wallCorr && into->y1 <= (*i)->dims.y2 + wallCorr && (*i)->dims.x1 + wallCorr < into->x1 && (*i)->dims.x1 + wallCorr < into->x2){
-				into->x2 = (*i)->dims.x1 + wallCorr;
+			if (into->y1 >= (*i)->dims.y1 - wallCorr && into->y1 >= (*i)->dims.y2 + wallCorr && into->x2 > (*i)->dims.x1 - wallCorr && into->x1 < (*i)->dims.x2 + wallCorr){
+				into->x2 = (*i)->dims.x1 - wallCorr - 1;
 			}  
-			else if ((*i)->dims.y2 + wallCorr < into->y2 && (*i)->dims.x1 + wallCorr < into->x2){	//chop all the way from bottom
-				into->y2 = (*i)->dims.y2 + wallCorr;
+			else if (into->y1 <= (*i)->dims.y1 - wallCorr && into->y2 >= (*i)->dims.y1 - wallCorr && into->x2 >= (*i)->dims.x1 - wallCorr && into->x1 <= (*i)->dims.x2 - wallCorr){	//chop all the way from bottom
+				into->y2 = (*i)->dims.y1 - wallCorr - 1;
 			}
 		}
 	}
-	if (into->x1 == into->x2 || into->y1 == into->y2) delete into;
+	if (into->x1 >= into->x2 || into->y1 >= into->y2) delete into;
 	else{
 		into->size = (into->x2 - into->x1) * (into->y2 - into->y1);
 		avail.push_back(into);
+	}	
+	
+	into = new bounds(*coord);	
 		
-		into = new bounds(*coord);
-		
-		
-		for (vector<ZBRA*>::iterator i = fChild.begin(); i != fChild.end(); i++){
-			if (i != j){
-				int wallCorr = ((*i)->wall != Tile::UDEF)?1:0;
-				if (into->x1 >= (*i)->dims.x1 - wallCorr && into->x1 <= (*i)->dims.x2 + wallCorr && (*i)->dims.y1 + wallCorr < into->y1 && (*i)->dims.y1 + wallCorr < into->y2){
-					into->y2 = (*i)->dims.y1 + wallCorr;
-				}  
-				else if ((*i)->dims.x2 + wallCorr < into->x2 && (*i)->dims.y1 + wallCorr < into->y2){	//chop all the way from right
-					into->x2 = (*i)->dims.x2 + wallCorr;
-				}
+	for (vector<ZBRA*>::iterator i = fChild.begin(); i != fChild.end(); i++){
+		if (i != j){
+			int wallCorr = ((*i)->wall != Tile::UDEF)?1:0;
+			if (into->x1 >= (*i)->dims.x1 - wallCorr && into->x1 >= (*i)->dims.x2 + wallCorr && into->y2 > (*i)->dims.y1 - wallCorr && into->y1 < (*i)->dims.y2 + wallCorr){
+				into->y2 = (*i)->dims.y1 - wallCorr - 1;
+			}  
+			else if (into->x1 <= (*i)->dims.x1 - wallCorr && into->x2 >= (*i)->dims.x1 - wallCorr && into->y2 >= (*i)->dims.y1 - wallCorr && into->y1 <= (*i)->dims.y2 - wallCorr){	//chop all the way from bottom
+				into->x2 = (*i)->dims.x1 - wallCorr - 1;
 			}
 		}
-		if ((*avail.back()).x2 != into->x2 || (*avail.back()).y2 != into->y2){
+	}
+	if (into->x1 >= into->x2 || into->y1 >= into->y2) delete into;
+	else{ //if(!avail.empty()){
+		//if (into->x2 != (*avail.end())->x2 && into->y2 != (*avail.end())->y2){
 			into->size = (into->x2 - into->x1) * (into->y2 - into->y1);
 			avail.push_back(into);
-		}
-		else delete into;
+		
 	}
+	//else delete into;
 }

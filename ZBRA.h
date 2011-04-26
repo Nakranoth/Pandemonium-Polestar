@@ -17,6 +17,7 @@ class ZBRA
 		bool shallow;	//flag: counts for depth traversals.
 		bool fitted;	//flag: has a set position in the map.
 		vector<ZBRA*> subArea;	//ZBRAs within this ZBRA
+		ZBRA** subAreaArray;	//For Debugging purposes only.
 		Map* map;	//tiles the ZBRA contains
 		vector<int> fops;	//the FOPs of the ZBRA, presently a placeholder.
 		int minSize;

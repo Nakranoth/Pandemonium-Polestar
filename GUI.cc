@@ -1,5 +1,9 @@
 #include "GUI.h"
 
+#include "Map.h"
+
+void breakHere();
+
 /*************************************
  *onExecute()
  *
@@ -24,6 +28,7 @@ int GUI::onExecute()
 		}
 			Logic();
 			RenderMap(city.map->ref);
+			//breakHere();
 	}
 
 	//Before exiting take care of any cleaning up

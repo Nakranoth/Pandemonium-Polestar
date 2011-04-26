@@ -21,7 +21,7 @@ class Tile
 	private:
 
 	public: 
-		Tile(int x, int y, Uint8 sprite, bool solid = false);
+		Tile(int x, int y, Uint8 type, bool solid = false);
 		Tile();
 		~Tile();
 };
