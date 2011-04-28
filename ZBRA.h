@@ -18,8 +18,8 @@ class ZBRA
 		bool shallow;	//flag: counts for depth traversals.
 		bool fitted;	//flag: has a set position in the map.
 		vector<ZBRA*> subArea;	//ZBRAs within this ZBRA
+		ZBRA** subAreaArray;	//For Debugging purposes only.
 		Map* map;	//tiles the ZBRA contains
-		vector<FOP*> fops;	//the FOPs of the ZBRA
 		int minSize;
 		int idealSize;
 		short floor, wall;
@@ -41,7 +41,7 @@ class ZBRA
 		int getIdealSize();
 		void solveRecursive(ZBRA* area);
 		void buildMap();
-		void AddFop(FOP* fop); //builds list of fops contained in this ZBRA
+		void AddFop(FOP* fop, Tile* tile); //builds list of fops contained in this ZBRA
 };
 
 #endif

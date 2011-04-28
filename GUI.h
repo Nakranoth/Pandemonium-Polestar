@@ -38,6 +38,7 @@ class GUI : public Events
 	void onExit();
 	void Cleanup();
 	void RenderMap(Tile* refTile);
+	void RenderFOP(FOP* fop);
 
 	void OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode);
 	void OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode);

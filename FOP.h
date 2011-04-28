@@ -2,9 +2,11 @@
 #define _FOP_
 
 #include <vector>
+#include <SDL/SDL.h>
 
-#include "Tile.h"
+class Tile;
 #include "Action.h"
+#include "SurfaceLoader.h"
 
 using namespace std;
 
@@ -19,6 +21,9 @@ class FOP
 		int x;
 		int y;
 		Tile* location; //holds the tile that the FOP is located on
+
+		SDL_Surface* image; //holds the pointer to the image of this file
+		Uint8 colorkey;
 	public:
 		FOP();
 		~FOP();

@@ -2,6 +2,7 @@
 #define _TILE_
 
 #include <SDL/SDL.h>
+#include "FOP.h"
 
 class Tile
 {
@@ -18,6 +19,7 @@ class Tile
 		Tile* south;
 		Tile* east;
 		Tile* west;
+		vector<FOP*> fops;	//the FOPs of the tile
 	
 	private:
 

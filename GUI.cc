@@ -1,5 +1,9 @@
 #include "GUI.h"
 
+#include "Map.h"
+
+void breakHere();
+
 /*************************************
  *onExecute()
  *
@@ -24,6 +28,7 @@ int GUI::onExecute()
 		}
 			Logic();
 			RenderMap(city.map->ref);
+			//breakHere();
 	}
 
 	//Before exiting take care of any cleaning up
@@ -42,7 +47,7 @@ bool GUI::Initialize()
 {
 	//sets up the ZBRA 'city' to be a city
 	city.City();
-	character = city.fops[0];
+	character = city.map->ref->fops[0];
 
 	//setting running to true
 	running = true;
@@ -82,11 +87,12 @@ bool GUI::Initialize()
 	}
 
 	CHARACTER = NULL;
-	char file2[] = "./char.bmp";
+	char file2[] = "./FOPS/char.bmp";
 	if((CHARACTER = SurfaceLoader::LoadImage(file2)) == NULL) {
 		return false;
 	}
-	SDL_SetColorKey(CHARACTER, SDL_SRCCOLORKEY, colorkey); //making the image set to the colorkey
+	colorkey = SDL_MapRGB(CHARACTER->format, 255, 255, 255);
+	SDL_SetColorKey(CHARACTER, SDL_SRCCOLORKEY, colorkey); //making the image transparency set to the colorkey
 
 	return true;
 }
@@ -150,6 +156,7 @@ void GUI::Render(Tile* ref)
 
 	//Draw the location tile of the character (should be under character)
 	SurfaceLoader::DrawImage(screen, TILES, (character->location->x)*Tile::SIZE + (320 - character->x), (character->location->y)*Tile::SIZE + (240 - character->y), 120, 30, Tile::SIZE, Tile::SIZE);
+	
 
 	//Load the correct image for the tile depending on the type it is
 	switch(ref->type)
@@ -204,6 +211,12 @@ void GUI::Render(Tile* ref)
 			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
 						(ref->y)*Tile::SIZE + (240 - character->y), 0, 0, Tile::SIZE, Tile::SIZE);
 			break;
+	}
+
+	//Draw all the FOPs of the tile being drawn after drawing the tile
+	for(unsigned int i = 0; i < ref->fops.size(); i++)
+	{
+		RenderFOP(ref->fops[i]);
 	}
 }
 
@@ -264,12 +277,15 @@ void GUI::RenderMap(Tile* refTile)
 		toRender.erase(it);
 	}
 
-
-
 	//Will go after the loop finishing the output of
 	//the map so that all tiles are rendered THEN output
 	SDL_Flip(screen);
 	
+}
+
+void GUI::RenderFOP(FOP* fop)
+{
+	SurfaceLoader::DrawImage(screen, fop->image, (fop->x) + (320 - character->x), (fop->y) + (320 - character->y));
 }
 
 /*************************************

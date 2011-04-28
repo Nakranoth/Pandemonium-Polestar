@@ -145,11 +145,17 @@ if (ipPoint->south == NULL) breakHere();
 		Map::stitch(pPoint,cPoint,(*test)->wall, orient);
 		Map::checkConsistency((*test)->map->ref);
 	}
+	subAreaArray = new ZBRA*[subArea.size()];
+	int i = 0;
+	for (vector<ZBRA*>::iterator test = subArea.begin(); test != subArea.end(); test++){
+		subAreaArray[i] = *test;
+		i++;
+	}
 }
 
-void ZBRA::AddFop(FOP* fop)
+void ZBRA::AddFop(FOP* fop, Tile* tile)
 {
-	fops.push_back(fop);
+	tile->fops.push_back(fop);
 }
 
 ZBRA* ZBRA::City()
@@ -164,7 +170,7 @@ ZBRA* ZBRA::City()
 	//DimSolv(*subArea.begin());
 	solveRecursive(this);
 	buildMap();
-	AddFop((new FOP)->Character(320, 240, map->ref));
+	AddFop((new FOP)->Character(320, 240, map->ref), map->ref);
 	return this;
 }
 		
@@ -180,7 +186,7 @@ ZBRA* ZBRA::House()
 	subArea.push_back((new ZBRA)->BedRoom());
 	subArea.push_back((new ZBRA)->BedRoom());
 	//for now every house will contain 1 cat
-	AddFop((new FOP)->Cat());
+	//AddFop((new FOP)->Cat(), map->ref);
 	minSize = 20 + getMinSize();
 	idealSize = 30 + getIdealSize();
 	return this;
@@ -193,7 +199,7 @@ ZBRA* ZBRA::BathRoom(){
 	floor = Tile::BATHROOM;
 	wall = Tile::WALL;
 	//every bathroom for now will contain only 1 toilet
-	AddFop((new FOP)->Toilet());
+	//AddFop((new FOP)->Toilet(), map->ref);
 	return this;
 }
 
@@ -202,7 +208,7 @@ ZBRA* ZBRA::Kitchen(){
 	floor = Tile::KITCHEN;
 	wall = Tile::WALL;
 	//every kitchen for now will contain only 1 fridge
-	AddFop((new FOP)->Refrigerator());
+	//AddFop((new FOP)->Refrigerator(), map->ref);
 	minSize = 25;
 	idealSize = 40;
 	return this;
@@ -213,7 +219,7 @@ ZBRA* ZBRA::LivingRoom(){
 	floor = Tile::FLOOR;
 	wall = Tile::WALL;
 	//every living room for now will contain only 1 sofa
-	AddFop((new FOP)->Sofa());
+	//AddFop((new FOP)->Sofa(), map->ref);
 	minSize = 30;
 	idealSize = 45;
 	return this;
@@ -224,7 +230,7 @@ ZBRA* ZBRA::BedRoom(){
 	floor = Tile::BEDROOM;
 	wall = Tile::WALL;
 	//every bedroom for now will contain only 1 bed
-	AddFop((new FOP)->Bed());
+	//AddFop((new FOP)->Bed(), map->ref);
 	minSize = 20;
 	idealSize = 35;
 	return this;
