@@ -58,7 +58,11 @@ bool GUI::Initialize()
     	}
 
 	//Setting the Icon of the window
-	SDL_WM_SetIcon(SDL_LoadBMP("icon.bmp"), NULL);
+	Uint32 colorkey;
+	icon = SDL_LoadBMP("icon.bmp"); //loading bmp
+	colorkey = SDL_MapRGB(icon->format, 255, 255, 255); //setting the color for our transparency in a colorkey
+	SDL_SetColorKey(icon, SDL_SRCCOLORKEY, colorkey); //making the image set to the colorkey
+	SDL_WM_SetIcon(icon,NULL);
 
 	//Setting the title of the window
 	SDL_WM_SetCaption("Pandemonium Polestar","Pandemonium Polestar");
@@ -82,6 +86,7 @@ bool GUI::Initialize()
 	if((CHARACTER = SurfaceLoader::LoadImage(file2)) == NULL) {
 		return false;
 	}
+	SDL_SetColorKey(CHARACTER, SDL_SRCCOLORKEY, colorkey); //making the image set to the colorkey
 
 	return true;
 }
@@ -108,36 +113,24 @@ void GUI::Logic()
 {
 	if(character->x / Tile::SIZE < character->location->x)
 	{
-		if(character->location->west->type == Tile::WALL){
-			character->x -= charXvel*Tile::SIZE;
-		}
-		else
 		character->location = character->location->west;
 	}
 	if(character->x / Tile::SIZE > character->location->x)
 	{
-		if(character->location->east->type == Tile::WALL){
-			character->x -= charXvel*Tile::SIZE;
-		}
-		else
 		character->location = character->location->east;
 	}
 	if(character->y / Tile::SIZE < character->location->y)
 	{
-		if(character->location->north->type == Tile::WALL){
-			character->y -= charYvel*Tile::SIZE;
-		}
-		else
 		character->location = character->location->north;
 	}
 	if(character->y / Tile::SIZE > character->location->y)
 	{
-		if(character->location->south->type == Tile::WALL){
-			character->y -= charYvel*Tile::SIZE;
-		}
-		else
 		character->location = character->location->south;
 	}
+
+	//check for any collisions that would result in a stopping
+	//of the velocity before moving the player
+	checkCollision();
 
 	//Move the character based on its velocity (can be 0)
 	character->x += charXvel;
@@ -153,10 +146,10 @@ void GUI::Logic()
 void GUI::Render(Tile* ref)
 {
 	//Draw the character everytime
-	SurfaceLoader::DrawImage(screen, CHARACTER, 320, 240, 0, 0, Tile::SIZE, Tile::SIZE);
+	SurfaceLoader::DrawImage(screen, CHARACTER, 320 - (character->width / 2), 240 - (character->length / 2), 0, 0, Tile::SIZE, Tile::SIZE);
 
 	//Draw the location tile of the character (should be under character)
-	SurfaceLoader::DrawImage(screen, TILES, (character->location->x)*Tile::SIZE, (character->location->y)*Tile::SIZE, 120, 30, Tile::SIZE, Tile::SIZE);
+	SurfaceLoader::DrawImage(screen, TILES, (character->location->x)*Tile::SIZE + (320 - character->x), (character->location->y)*Tile::SIZE + (240 - character->y), 120, 30, Tile::SIZE, Tile::SIZE);
 
 	//Load the correct image for the tile depending on the type it is
 	switch(ref->type)
@@ -293,22 +286,22 @@ void GUI::onExit()
 void GUI::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 {
 	//UP
-	if(sym == 273 && character->location->north->type != Tile::WALL)
+	if(sym == 273)
 	{
 		charYvel -= 2;
 	}
 	//DOWN
-	if(sym == 274  && character->location->south->type != Tile::WALL)
+	if(sym == 274)
 	{
 		charYvel += 2;
 	}
 	//LEFT
-	if(sym == 276  && character->location->west->type != Tile::WALL)
+	if(sym == 276)
 	{
 		charXvel -= 2;
 	}
 	//RIGHT
-	if(sym == 275  && character->location->east->type != Tile::WALL)
+	if(sym == 275)
 	{
 		charXvel += 2;
 	}
@@ -352,4 +345,38 @@ void GUI::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode)
 	{
 		onExit();
 	}
+}
+
+bool GUI::checkCollision()
+{
+	//North
+	if(charYvel < 0 && character->location->type == Tile::WALL && (character->y - character->length/2) < character->location->y)
+	{
+		character->y -= charYvel;
+		charYvel = 0;
+		return true;
+	}
+	//South
+	if(charYvel > 0 && character->location->type == Tile::WALL && (character->y + character->length/2) > character->location->y)
+	{
+		character->y -= charYvel;
+		charYvel = 0;
+		return true;
+	}
+	//East
+	if(charXvel > 0 && character->location->type == Tile::WALL && (character->x + character->width/2) > character->location->x)
+	{
+		character->x -= charXvel;
+		charXvel = 0;
+		return true;
+	}
+	//West
+	if(charXvel < 0 && character->location->type == Tile::WALL && (character->x - character->width/2) < character->location->x)
+	{
+		character->x -= charXvel;
+		charXvel = 0;
+		return true;
+	}
+
+	return false;
 }

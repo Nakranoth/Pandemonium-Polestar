@@ -16,6 +16,7 @@ class GUI : public Events
 	private:
 	bool running;
 	SDL_Surface* screen;
+	SDL_Surface *icon;
 	SDL_Surface* TILES;
 	SDL_Surface* CHARACTER;
 
@@ -40,6 +41,7 @@ class GUI : public Events
 
 	void OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode);
 	void OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode);
+	bool checkCollision();
 };
 
 #endif
