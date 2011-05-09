@@ -174,8 +174,8 @@ void DimSolv::positionChildren(ZBRA* solveme, vector<ZBRA*> children){
 	//Easy case: soft, 1 child. Smallest xy to largest xy is mine... If i only have 1 child.
 	if (children.size() == 1){
 		if (solveme->flags & ZBRA::SOFT){
+			getEffDims(solveme);
 			toBounds(solveme, children);//I am my children's effective bounds
-			//getEffDims(solveme);
 			setSpot(solveme,0,0);
 			return;
 		}//else slightly harder case: !soft, 1 child
@@ -523,17 +523,17 @@ void DimSolv::toBounds(ZBRA* solveme, vector<ZBRA*> children){
 	
 	int x2, y2;
 	for (vector<ZBRA*>::iterator i = children.begin(); i < children.end(); i++){
-		if((*i)->effDims.x > (*i)->effDims.x){
+		/*if((*i)->effDims.x > (*i)->effDims.x){
 			(*i)->effDims.x = (*i)->effDims.x;
 			(*i)->effDims.y = (*i)->effDims.y;
 			(*i)->effDims.width = (*i)->effDims.width;
 			(*i)->effDims.height = (*i)->effDims.height;
-		}
+		}*/
 		
-		if (top > (*i)->effDims.y) top = (*i)->effDims.y;
-		if (left > (*i)->effDims.x) left = (*i)->effDims.x;
-		if (bottom < (y2 = (*i)->effDims.y + (*i)->effDims.height)) bottom = y2;
-		if (right < (x2 = (*i)->effDims.x + (*i)->effDims.width)) right = x2;
+		if (top > (*i)->effDims.y) top = (*i)->effDims.y; cerr << top << ' ';
+		if (left > (*i)->effDims.x) left = (*i)->effDims.x; cerr << left << ' ';
+		if (bottom < (y2 = (*i)->effDims.y + (*i)->effDims.height)) bottom = y2; cerr << bottom << ' ';
+		if (right < (x2 = (*i)->effDims.x + (*i)->effDims.width)) right = x2; cerr << right << '\n';
 		/*for (vector<ZBRA*>::iterator j = (*i)->adjacent.begin(); j < (*i)->adjacent.end(); j++){
 			if (top > (*j)->effDims.y) top = (*j)->effDims.y;
 			if (left > (*j)->effDims.x) left = (*j)->effDims.x;
@@ -555,10 +555,7 @@ void DimSolv::getEffDims(ZBRA* solveme){
 	solveme->effDims.height = solveme->dims.height;
 	for (vector<ZBRA*>::iterator j = solveme->adjacent.begin(); j < solveme->adjacent.end(); j++){
 		if ( (*j)->effDims.x > (*j)->dims.x){	//effDims not set. Set to dims.
-			(*j)->effDims.x = (*j)->dims.x;
-			(*j)->effDims.y = (*j)->dims.y;
-			(*j)->effDims.width = (*j)->dims.width;
-			(*j)->effDims.height = (*j)->dims.height;
+			getEffDims(*j);
 		}
 		if ((*j)->effDims.x < solveme->effDims.x){
 			solveme->effDims.width += solveme->effDims.x - (*j)->effDims.x;
@@ -569,10 +566,10 @@ void DimSolv::getEffDims(ZBRA* solveme){
 			solveme->effDims.y = (*j)->effDims.y;
 		}
 		if ((*j)->effDims.x + (*j)->effDims.width > solveme->effDims.x + solveme->effDims.width){
-			solveme->effDims.width += (*j)->effDims.x + (*j)->effDims.width - solveme->effDims.x + solveme->effDims.width;
+			solveme->effDims.width += (*j)->effDims.x + (*j)->effDims.width - (solveme->effDims.x + solveme->effDims.width);
 		}
 		if ((*j)->effDims.y + (*j)->effDims.height > solveme->effDims.y + solveme->effDims.height){
-			solveme->effDims.height += (*j)->effDims.y + (*j)->effDims.height - solveme->effDims.y + solveme->effDims.height;
+			solveme->effDims.height += (*j)->effDims.y + (*j)->effDims.height - (solveme->effDims.y + solveme->effDims.height);
 		}
 	}
 	//cerr << solveme->effDims.x << ',' << solveme->effDims.y << ':' << solveme->effDims.width << ',' << solveme->effDims.height << "vs" << solveme->dims.x << ',' << solveme->dims.y << ':' << solveme->dims.width << ',' << solveme->dims.height << endl;
