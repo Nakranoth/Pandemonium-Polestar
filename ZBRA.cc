@@ -59,21 +59,33 @@ void ZBRA::solveRecursive(){
 	DimSolv lambda(this);
 }
 
-void ZBRA::buildMap(){
+void ZBRA::buildMap(Tile* superParent){
 	map = new Map(dims.x,dims.y,dims.width,dims.height,floor,wall);
 	map->populate();
-	if (subArea.size()) {subArea[0]->buildMap();
-	//for (vector<ZBRA*>::iterator test = adjacent.begin(); test < adjacent.end(); test++){
-		//(*test)->buildMap();//readies children maps
+	//if (subArea.size()) {
+		for (vector<ZBRA*>::iterator child = subArea.begin(); child < subArea.end(); child++){
+		(*child)->buildMap(map->ref);//readies children maps
 		Tile* pPoint;	//parent reference tile for stiching
 		Tile* cPoint;	//child reference tile for stiching
 		
 		pPoint = map->ref;
-		cPoint = subArea[0]->map->ref;
+		cPoint = (*child)->map->ref;
 		
-		Map::stitch(pPoint,cPoint,subArea[0]->wall,&map->ref,&subArea[0]->map->ref);
-		map->checkConsistency(subArea[0]->map->ref);}
-	//}
+		Map::stitch(pPoint,cPoint,(*child)->wall,&map->ref,&(*child)->map->ref);
+		map->checkConsistency((*child)->map->ref);
+	}
+	
+	for (vector<ZBRA*>::iterator adj = adjacent.begin(); adj < adjacent.end(); adj++){
+		(*adj)->buildMap(map->ref);//readies children maps
+		Tile* pPoint;	//parent reference tile for stiching
+		Tile* cPoint;	//child reference tile for stiching
+		
+		pPoint = superParent;
+		cPoint = (*adj)->map->ref;
+		
+		Map::stitch(pPoint,cPoint,(*adj)->wall,&map->ref,&(*adj)->map->ref);
+		map->checkConsistency((*adj)->map->ref);
+	}
 }
 
 void ZBRA::recursiveWiggle(int x, int y){
@@ -103,7 +115,7 @@ ZBRA* ZBRA::City()
 	idealSize = 900 + getIdealSize();
 	solveRecursive();
 	printDimsRecursive();
-	buildMap();
+	buildMap(NULL);
 	return this;
 }
 		

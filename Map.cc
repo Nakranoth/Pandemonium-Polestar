@@ -202,7 +202,7 @@ void Map::stitch(Tile* parent, Tile* child, int wall, Tile** pAdder, Tile** cAdd
 }
 
 /*
-void Map::unstitch(Tile* ref, int width, int height){
+void Map::unstitch(Tile* ref, int width, int height){//happens only after the first-pass stitch has occured
 	//Give NW corner
 	for (int i = 0; i < width; i++){
 		if (ref->north){
