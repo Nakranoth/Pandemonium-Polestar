@@ -11,12 +11,16 @@ FOP::FOP()
 	length = 0;
 	x = 0;
 	y = 0;
+	Xvel = 0;
+	Yvel = 0;
+	
 
 	image = NULL;
 }
 
 FOP::~FOP()
 {
+	SDL_FreeSurface(image);
 }
 
 int FOP::getSize()

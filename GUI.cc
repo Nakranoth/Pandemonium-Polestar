@@ -2,7 +2,6 @@
 
 #include "Map.h"
 
-void breakHere();
 
 /*************************************
  *onExecute()
@@ -28,7 +27,6 @@ int GUI::onExecute()
 		}
 			Logic();
 			RenderMap(city.map->ref);
-			//breakHere();
 	}
 
 	//Before exiting take care of any cleaning up
@@ -53,8 +51,8 @@ bool GUI::Initialize()
 	running = true;
 
 	//setting up testing x and y velocities for holding down keys use
-	charXvel = 0;
-	charYvel = 0;
+	character->Xvel = 0;
+	character->Yvel = 0;
 
 	//Telling SDL to initialize everything it has...
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -62,12 +60,17 @@ bool GUI::Initialize()
         	return false;
     	}
 
-	//Setting the Icon of the window
-	Uint32 colorkey;
-	icon = SDL_LoadBMP("icon.bmp"); //loading bmp
-	colorkey = SDL_MapRGB(icon->format, 255, 255, 255); //setting the color for our transparency in a colorkey
-	SDL_SetColorKey(icon, SDL_SRCCOLORKEY, colorkey); //making the image set to the colorkey
-	SDL_WM_SetIcon(icon,NULL);
+	Uint32 colorkey; //holds the colorkey for transparencies when loading images
+
+	//Setting the Icon of the window	
+	char iconfile[] = "icon.bmp";
+	if((ICON = SDL_LoadBMP(iconfile)) == NULL) {
+		cerr << "Error in loading " << iconfile << "..program exit.\n";
+		return false;
+	}
+	colorkey = SDL_MapRGB(ICON->format, 255, 255, 255); //setting the color for our transparency in a colorkey
+	SDL_SetColorKey(ICON, SDL_SRCCOLORKEY, colorkey); //making the image set to the colorkey
+	SDL_WM_SetIcon(ICON,NULL);
 
 	//Setting the title of the window
 	SDL_WM_SetCaption("Pandemonium Polestar","Pandemonium Polestar");
@@ -80,15 +83,19 @@ bool GUI::Initialize()
         	return false;
     	}
 
+	//loading the tiles surface from the tiles.bmp to get the tile pictures from
 	TILES = NULL;
-	char file[] = "./tiles.bmp";
+	char file[] = "TILES/tiles.bmp";
 	if((TILES = SurfaceLoader::LoadImage(file)) == NULL) {
+		cerr << "Error in loading " << file << "...program exit.\n";
 		return false;
 	}
 
+	//loading the character surface from the char.bmp to get the character's pictures from
 	CHARACTER = NULL;
-	char file2[] = "./FOPS/char.bmp";
+	char file2[] = "FOPS/char.bmp";
 	if((CHARACTER = SurfaceLoader::LoadImage(file2)) == NULL) {
+		cerr << "Error in loading " << file2 << "...program exit.\n";
 		return false;
 	}
 	colorkey = SDL_MapRGB(CHARACTER->format, 255, 255, 255);
@@ -117,6 +124,9 @@ void GUI::EventHandler(SDL_Event* Event)
  *************************************/
 void GUI::Logic()
 {
+
+	//Moving the x/y tile location of the character to keep track of him
+	//in terms of which tile of the map he's on
 	if(character->x / Tile::SIZE < character->location->x)
 	{
 		character->location = character->location->west;
@@ -136,11 +146,11 @@ void GUI::Logic()
 
 	//check for any collisions that would result in a stopping
 	//of the velocity before moving the player
-	checkCollision();
+	checkCollision(character);
 
 	//Move the character based on its velocity (can be 0)
-	character->x += charXvel;
-	character->y += charYvel;
+	character->x += character->Xvel;
+	character->y += character->Yvel;
 }
 
 /*************************************
@@ -214,10 +224,7 @@ void GUI::Render(Tile* ref)
 	}
 
 	//Draw all the FOPs of the tile being drawn after drawing the tile
-	for(unsigned int i = 0; i < ref->fops.size(); i++)
-	{
-		RenderFOP(ref->fops[i]);
-	}
+	RenderFOPs(ref);
 }
 
 /*************************************
@@ -231,6 +238,8 @@ void GUI::Cleanup()
 {
 	SDL_FreeSurface(screen);
 	SDL_FreeSurface(TILES);
+	SDL_FreeSurface(ICON);
+	SDL_FreeSurface(CHARACTER);
 	SDL_Quit();
 }
 
@@ -283,9 +292,21 @@ void GUI::RenderMap(Tile* refTile)
 	
 }
 
-void GUI::RenderFOP(FOP* fop)
+/**************************************
+ *RenderFOPs()
+ *
+ *This will be called whenever we must
+ *render all FOPs for a certain tile. This
+ *function will go through every fop of
+ *a passed in tile and render it before
+ *exiting to render more tiles/fops.
+ **************************************/
+void GUI::RenderFOPs(Tile* tile)
 {
-	SurfaceLoader::DrawImage(screen, fop->image, (fop->x) + (320 - character->x), (fop->y) + (320 - character->y));
+	for(unsigned int i=0; i<(tile->fops.size()); i++)
+	{
+		SurfaceLoader::DrawImage(screen, tile->fops[i]->image, (tile->fops[i]->x) + (320 - character->x), (tile->fops[i]->y) + (320 - character->y));
+	}
 }
 
 /*************************************
@@ -299,98 +320,123 @@ void GUI::onExit()
 	running = false;
 }
 
+/*************************************
+ *OnKeyDown()
+ *
+ *This function handles what happens
+ *when a key is pressed down.
+ *************************************/
 void GUI::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 {
 	//UP
-	if(sym == 273)
+	if(sym == SDLK_UP)
 	{
-		charYvel -= 2;
+		character->Yvel -= 2;
 	}
 	//DOWN
-	if(sym == 274)
+	if(sym == SDLK_DOWN)
 	{
-		charYvel += 2;
+		character->Yvel += 2;
 	}
 	//LEFT
-	if(sym == 276)
+	if(sym == SDLK_LEFT)
 	{
-		charXvel -= 2;
+		character->Xvel -= 2;
 	}
 	//RIGHT
-	if(sym == 275)
+	if(sym == SDLK_RIGHT)
 	{
-		charXvel += 2;
+		character->Xvel += 2;
 	}
 	//ESCAPE
-	if(sym == 27)
+	if(sym == SDLK_ESCAPE)
 	{
 		onExit();
 	}
 	//character presses button, we want to do a check for objects
 	//Right CTRL
-	if(sym == 30)
+	if(sym == SDLK_f)
 	{
-		
+		cout<<"We want to interact!\n";		
 	}
 }
 
+/*************************************
+ *OnKeyUp()
+ *
+ *This function handles what happens
+ *when a key is released.
+ *************************************/
 void GUI::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode)
 {
 	//UP
-	if(sym == 273)
+	if(sym == SDLK_UP)
 	{
-		charYvel = 0;
+		character->Yvel = 0;
 	}
 	//DOWN
-	if(sym == 274)
+	if(sym == SDLK_DOWN)
 	{
-		charYvel = 0;
+		character->Yvel = 0;
 	}
 	//LEFT
-	if(sym == 276)
+	if(sym == SDLK_LEFT)
 	{
-		charXvel = 0;
+		character->Xvel = 0;
 	}
 	//RIGHT
-	if(sym == 275)
+	if(sym == SDLK_RIGHT)
 	{
-		charXvel = 0;
+		character->Xvel = 0;
 	}
 	//ESCAPE
-	if(sym == 27)
+	if(sym == SDLK_ESCAPE)
 	{
 		onExit();
 	}
 }
 
-bool GUI::checkCollision()
+/*************************************
+ *checkCollision()
+ *
+ *This function is called whenever we
+ *want to determine if there is a
+ *collision with the character against
+ *an object or a wall.
+ *
+ *NOTE: This could be changed to take
+ *	in a FOP and be called for any
+ *	collision regarding a FOP (as
+ *	in other AI colliding with stuff)
+ *************************************/
+bool GUI::checkCollision(FOP* fop)
 {
 	//North
-	if(charYvel < 0 && character->location->type == Tile::WALL && (character->y - character->length/2) < character->location->y)
+	if(fop->Yvel < 0 && fop->location->type == Tile::WALL && (fop->y - fop->length/2) < fop->location->y)
 	{
-		character->y -= charYvel;
-		charYvel = 0;
+		fop->y -= fop->Yvel;
+		fop->Yvel = 0;
 		return true;
 	}
 	//South
-	if(charYvel > 0 && character->location->type == Tile::WALL && (character->y + character->length/2) > character->location->y)
+	if(fop->Yvel > 0 && fop->location->type == Tile::WALL && (fop->y + fop->length/2) > fop->location->y)
 	{
-		character->y -= charYvel;
-		charYvel = 0;
+		fop->y -= fop->Yvel;
+		fop->Yvel = 0;
 		return true;
 	}
 	//East
-	if(charXvel > 0 && character->location->type == Tile::WALL && (character->x + character->width/2) > character->location->x)
+	if(fop->Xvel > 0 && fop->location->type == Tile::WALL && (fop->x + fop->width/2) > fop->location->x)
 	{
-		character->x -= charXvel;
-		charXvel = 0;
+		fop->x -= fop->Xvel;
+		fop->Xvel = 0;
 		return true;
 	}
 	//West
-	if(charXvel < 0 && character->location->type == Tile::WALL && (character->x - character->width/2) < character->location->x)
+	if(fop->Xvel < 0 && fop->location->type == Tile::WALL && (fop->x - fop->width/2) < fop->location->x)
 	{
-		character->x -= charXvel;
-		charXvel = 0;
+		fop->x -= fop->Xvel;
+		fop->Xvel = 0;
 		return true;
 	}
 

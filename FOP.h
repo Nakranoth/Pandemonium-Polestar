@@ -18,8 +18,10 @@ class FOP
 		vector<int> actions;	//holds the actions that can be performed on this FOP
 		int width; //holds the pixel width of the FOP
 		int length; //holds the pixel length of the FOP
-		int x;
-		int y;
+		int x; //x position of this FOP
+		int y; //y position of this FOP
+		int Xvel; //x velocity of this fop (only non zero on moving AI)
+		int Yvel; //y velocity of this fop (only non zero on moving AI)
 		Tile* location; //holds the tile that the FOP is located on
 
 		SDL_Surface* image; //holds the pointer to the image of this file
