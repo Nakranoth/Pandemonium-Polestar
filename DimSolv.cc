@@ -523,11 +523,11 @@ void DimSolv::toBounds(ZBRA* solveme, vector<ZBRA*> children){
 	
 	int x2, y2;
 	for (vector<ZBRA*>::iterator i = children.begin(); i < children.end(); i++){
-		if((*i)->effDims.x > (*i)->dims.x){
-			(*i)->effDims.x = (*i)->dims.x;
-			(*i)->effDims.y = (*i)->dims.y;
-			(*i)->effDims.width = (*i)->dims.width;
-			(*i)->effDims.height = (*i)->dims.height;
+		if((*i)->effDims.x > (*i)->effDims.x){
+			(*i)->effDims.x = (*i)->effDims.x;
+			(*i)->effDims.y = (*i)->effDims.y;
+			(*i)->effDims.width = (*i)->effDims.width;
+			(*i)->effDims.height = (*i)->effDims.height;
 		}
 		
 		if (top > (*i)->effDims.y) top = (*i)->effDims.y;
@@ -541,6 +541,7 @@ void DimSolv::toBounds(ZBRA* solveme, vector<ZBRA*> children){
 			if (right < (x2 = (*j)->effDims.x + (*j)->effDims.width)) right = x2;
 		}*/
 	}
+	cerr << left << ':' << right << ';' << top << ':' << bottom << endl;
 	solveme->dims.x = left;
 	solveme->dims.y = top;
 	solveme->dims.width = right - left;
