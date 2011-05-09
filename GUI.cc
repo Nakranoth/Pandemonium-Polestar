@@ -256,22 +256,22 @@ void GUI::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 	//UP
 	if(sym == 273)
 	{
-		charYvel -= 2;
+		charYvel -= 4;
 	}
 	//DOWN
 	if(sym == 274)
 	{
-		charYvel += 2;
+		charYvel += 4;
 	}
 	//LEFT
 	if(sym == 276)
 	{
-		charXvel -= 2;
+		charXvel -= 4;
 	}
 	//RIGHT
 	if(sym == 275)
 	{
-		charXvel += 2;
+		charXvel += 4;
 	}
 	//ESCAPE
 	if(sym == 27)

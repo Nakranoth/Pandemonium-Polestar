@@ -7,8 +7,7 @@ class Tile
 {
 	public:
 		static const int SIZE = 30;
-		static const short int UDEF = 0, WALL = 1, FLOOR = 2, ROAD = 3, GRASS = 4, DOOR = 5,
-					KITCHEN = 6, BATHROOM = 7, BEDROOM = 8, HOUSE = 9;
+		static const short int UDEF = 0, WALL = 1, FLOOR = 2, ROAD = 3, GRASS = 4, DOOR = 5, KITCHEN = 6, BATHROOM = 7, BEDROOM = 8, HOUSE = 9;
 
 		int x;
 		int y;

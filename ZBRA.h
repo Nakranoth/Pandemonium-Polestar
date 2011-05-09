@@ -5,6 +5,8 @@
 #include <math.h>
 #include <limits.h>
 #include <assert.h>
+#include <time.h>
+#include <algorithm>
 
 #include "Map.h"
 #include "DimSolv.h"
@@ -15,9 +17,14 @@ using namespace std;
 class ZBRA
 {
 	public:
-		bool shallow;	//flag: counts for depth traversals.
-		bool fitted;	//flag: has a set position in the map.
+		static const int SHALLOW = 1, FITTED = 2, SOFT = 4, LONG = 8;
+		int flags;
+		//bool shallow;	//flag: counts for depth traversals.
+		//bool fitted;	//flag: has a set position in the map.
+		//bool soft;	//flag: has no area of its own. Is made up completely of children.
+		//bool long		//flag: is long and narrow, rather than squarish.
 		vector<ZBRA*> subArea;	//ZBRAs within this ZBRA
+		vector<ZBRA*> adjacent;	//ZBRAs near myself.
 		ZBRA** subAreaArray;	//For Debugging purposes only.
 		Map* map;	//tiles the ZBRA contains
 		vector<FOP*> fops;	//the FOPs of the ZBRA
@@ -25,24 +32,31 @@ class ZBRA
 		int idealSize;
 		short floor, wall;
 		bounds dims;
+		bounds effDims;	//effective dimensions: this + adjacents.
+		int seed;
 	public:
 		ZBRA();
 		~ZBRA();
 		
+		void recursiveWiggle(int x, int y);//shift own, subarea, and adjacent.
+		
 		//The functions that will help determine what this type of ZBRA will contain
 		ZBRA* City();
-		ZBRA* House();
-		ZBRA* BathRoom();
-		ZBRA* Kitchen();
-		ZBRA* LivingRoom();
-		ZBRA* BedRoom();
+		ZBRA* House(int randSeed);
+		ZBRA* BathRoom(int randSeed);
+		ZBRA* Kitchen(int randSeed);
+		ZBRA* LivingRoom(int randSeed);
+		ZBRA* BedRoom(int randSeed);
+		ZBRA* HouseHallway(int randSeed);
 		
 	private:
 		int getMinSize();	//Gets the sizes of this->subArea
 		int getIdealSize();
-		void solveRecursive(ZBRA* area);
+		void solveRecursive();
 		void buildMap();
 		void AddFop(FOP* fop); //builds list of fops contained in this ZBRA
+		
+		void printDimsRecursive();
 };
 
 #endif
