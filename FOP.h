@@ -26,6 +26,17 @@ class FOP
 
 		SDL_Surface* image; //holds the pointer to the image of this file
 		Uint8 colorkey;
+
+		//animation type variables
+		int maxFrames;
+		bool oscillate;
+
+	private:
+		//animation type variables
+		int currentFrame;
+		int frameIncrement;
+		int frameRate; //miliseconds
+		long oldTime;
 	public:
 		FOP();
 		~FOP();
@@ -37,6 +48,12 @@ class FOP
 		FOP* Bed();
 		FOP* Cat();
 		FOP* Character(int x, int y, Tile* ref);
+
+		void setFrameRate(int rate);
+		void setCurrentFrame(int frame);
+		int getCurrentFrame();
+		void startAnimation();
+		void stopAnimation();
 		
 	private:
 		int getSize();	//Gets the length and width of the FOP

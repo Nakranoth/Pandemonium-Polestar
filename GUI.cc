@@ -2,6 +2,18 @@
 
 #include "Map.h"
 
+void breakhere();
+
+/*************************************
+ *breakhere()
+ *
+ *This function is solely for the
+ *purpose of debugging and setting a
+ *break point.
+ *************************************/
+void breakhere()
+{
+}
 
 /*************************************
  *onExecute()
@@ -54,6 +66,9 @@ bool GUI::Initialize()
 	character->Xvel = 0;
 	character->Yvel = 0;
 
+	character->maxFrames = 5;
+	character->oscillate = false;
+
 	//Telling SDL to initialize everything it has...
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
 	{
@@ -98,7 +113,7 @@ bool GUI::Initialize()
 		cerr << "Error in loading " << file2 << "...program exit.\n";
 		return false;
 	}
-	colorkey = SDL_MapRGB(CHARACTER->format, 255, 255, 255);
+	colorkey = SDL_MapRGB(CHARACTER->format, 255, 42, 113);
 	SDL_SetColorKey(CHARACTER, SDL_SRCCOLORKEY, colorkey); //making the image transparency set to the colorkey
 
 	return true;
@@ -151,6 +166,16 @@ void GUI::Logic()
 	//Move the character based on its velocity (can be 0)
 	character->x += character->Xvel;
 	character->y += character->Yvel;
+
+	if(character->Xvel != 0 || character->Yvel != 0)
+	{
+		//Move the animation for the character whenever he moves
+		character->startAnimation();
+	}
+	else
+	{
+		character->stopAnimation();
+	}
 }
 
 /*************************************
@@ -162,10 +187,10 @@ void GUI::Logic()
 void GUI::Render(Tile* ref)
 {
 	//Draw the character everytime
-	SurfaceLoader::DrawImage(screen, CHARACTER, 320 - (character->width / 2), 240 - (character->length / 2), 0, 0, Tile::SIZE, Tile::SIZE);
+	SurfaceLoader::DrawImage(screen, CHARACTER, 320 - (character->width / 2), 240 - (character->length / 2), 0, character->getCurrentFrame()*character->length, character->width, character->length);
 
 	//Draw the location tile of the character (should be under character)
-	SurfaceLoader::DrawImage(screen, TILES, (character->location->x)*Tile::SIZE + (320 - character->x), (character->location->y)*Tile::SIZE + (240 - character->y), 120, 30, Tile::SIZE, Tile::SIZE);
+	//SurfaceLoader::DrawImage(screen, TILES, (character->location->x)*Tile::SIZE + (320 - character->x), (character->location->y)*Tile::SIZE + (240 - character->y), 120, 30, Tile::SIZE, Tile::SIZE);
 	
 
 	//Load the correct image for the tile depending on the type it is
@@ -357,7 +382,8 @@ void GUI::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 	//Right CTRL
 	if(sym == SDLK_f)
 	{
-		cout<<"We want to interact!\n";		
+		cout<<"We want to interact!\n";	
+		breakhere();	
 	}
 }
 
@@ -412,30 +438,26 @@ void GUI::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode)
 bool GUI::checkCollision(FOP* fop)
 {
 	//North
-	if(fop->Yvel < 0 && fop->location->type == Tile::WALL && (fop->y - fop->length/2) < fop->location->y)
+	if(fop->Yvel < 0 && fop->location->north->type == Tile::WALL && (fop->y - fop->length/2 + fop->Yvel) < fop->location->y*Tile::SIZE)
 	{
-		fop->y -= fop->Yvel;
 		fop->Yvel = 0;
 		return true;
 	}
 	//South
-	if(fop->Yvel > 0 && fop->location->type == Tile::WALL && (fop->y + fop->length/2) > fop->location->y)
+	if(fop->Yvel > 0 && fop->location->south->type == Tile::WALL && (fop->y + fop->length/2 + fop->Yvel) > fop->location->south->y*Tile::SIZE)
 	{
-		fop->y -= fop->Yvel;
 		fop->Yvel = 0;
 		return true;
 	}
 	//East
-	if(fop->Xvel > 0 && fop->location->type == Tile::WALL && (fop->x + fop->width/2) > fop->location->x)
+	if(fop->Xvel > 0 && fop->location->east->type == Tile::WALL && (fop->x + fop->width/2 + fop->Xvel) > fop->location->east->x*Tile::SIZE)
 	{
-		fop->x -= fop->Xvel;
 		fop->Xvel = 0;
 		return true;
 	}
 	//West
-	if(fop->Xvel < 0 && fop->location->type == Tile::WALL && (fop->x - fop->width/2) < fop->location->x)
+	if(fop->Xvel < 0 && fop->location->west->type == Tile::WALL && (fop->x - fop->width/2 + fop->Xvel) < fop->location->x*Tile::SIZE)
 	{
-		fop->x -= fop->Xvel;
 		fop->Xvel = 0;
 		return true;
 	}
