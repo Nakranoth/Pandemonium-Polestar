@@ -15,6 +15,7 @@ class Map
 		Tile* ref; //this is the reference tile for this area
 		short wall;
 		Tile** area;	//Mem space for tiles to be generated into. MUST BE DELETED.
+		//set<Tile*> edges;	//List of tiles that border another.
 	private:
 		int x, y, xsiz, ysiz;
 		short floor;
@@ -26,10 +27,10 @@ class Map
 		Map(int xloc, int yloc, int xsiz, int ysiz, short floor = Tile::GRASS, short wall = Tile::UDEF, short flags = 0);
 		~Map();
 		void populate();
-		static void checkConsistency(Tile* ref);
+		void checkConsistency(Tile* ref);
 		static void delChunk(Tile* ref);
 		static void unstitch(Tile* ref, int width, int height);
-		static void stitch(Tile* pRef, Tile* cRef, int wall, int orient);	//stiches together a parent and child, while
+		static void stitch(Tile* pRef, Tile* cRef, int wall,Tile** pAddr, Tile** cAddr);	//stiches together a parent and child
 		
 	private:
 		static void runEast(Tile* inRunner, Tile* outRunner, int wall, int orient, bool first);
