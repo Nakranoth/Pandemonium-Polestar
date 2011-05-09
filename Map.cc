@@ -133,9 +133,13 @@ void Map::stitch(Tile* parent, Tile* child, int wall, Tile** pAdder, Tile** cAdd
 		prun = prun->east;
 		crun = crun->east;
 	}
-	if(prun->north != NULL && wall != Tile::UDEF){
-		prun->north->type = wall;
-		if (prun->north->east != NULL) prun->north->east->type = wall;
+	if(prun->north != NULL){
+		prun->north->south = crun;
+		crun->north = prun->north;
+		if (wall != Tile::UDEF){
+			prun->north->type = wall;
+			if (prun->north->east != NULL) prun->north->east->type = wall;
+		}
 	}
 	//walk edge, make wall.
 	while (prun->south != NULL && crun->south != NULL){
@@ -147,9 +151,13 @@ void Map::stitch(Tile* parent, Tile* child, int wall, Tile** pAdder, Tile** cAdd
 		prun = prun->south;
 		crun = crun->south;
 	}
-	if(prun->east != NULL && wall != Tile::UDEF){
-		prun->east->type = wall;
-		if (prun->east->south != NULL) prun->east->south->type = wall;
+	if(prun->east != NULL){
+		prun->east->west = crun;
+		crun->east = prun->east;
+		if (wall != Tile::UDEF){
+			prun->east->type = wall;
+			if (prun->east->south != NULL) prun->east->south->type = wall;
+		}
 	}
 	//more wall walking
 	while (prun->west != NULL && crun->west != NULL){
@@ -161,9 +169,13 @@ void Map::stitch(Tile* parent, Tile* child, int wall, Tile** pAdder, Tile** cAdd
 		prun = prun->west;
 		crun = crun->west;
 	}
-	if(prun->south != NULL && wall != Tile::UDEF){
-		prun->south->type = wall;
-		if (prun->south->west != NULL) prun->south->west->type = wall;
+	if(prun->south != NULL){
+		prun->south->north = crun;
+		crun->south = prun->south;
+		if (wall != Tile::UDEF){
+			prun->south->type = wall;
+			if (prun->south->west != NULL) prun->south->west->type = wall;
+		}
 	}
 	//One last time
 	while (prun->north != NULL && crun->north != NULL){
@@ -175,11 +187,18 @@ void Map::stitch(Tile* parent, Tile* child, int wall, Tile** pAdder, Tile** cAdd
 		prun = prun->north;
 		crun = crun->north;
 	}
-	if(prun->west != NULL && wall != Tile::UDEF){
-		prun->west->type = wall;
-		if (prun->west->north != NULL) prun->west->north->type = wall;
+	if(prun->west != NULL){
+		prun->west->east = crun;
+		crun->west = prun->west;
+		if (wall != Tile::UDEF){
+			prun->west->type = wall;
+			if (prun->west->north != NULL) prun->west->north->type = wall;
+		}
 	}
+	//walk the parent pointr to where it belongs.
 	*pAdder = *cAdder;
+	while ((*pAdder)->north != NULL) *pAdder = (*pAdder)->north;
+	while ((*pAdder)->west != NULL) *pAdder = (*pAdder)->west;
 }
 
 /*
