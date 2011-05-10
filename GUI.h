@@ -3,6 +3,7 @@
 
 #include <SDL/SDL.h>
 #include <iostream>
+#include <math.h>
 
 #include "ZBRA.h"
 #include "Tile.h"
@@ -24,6 +25,7 @@ class GUI : public Events
 	SDL_Event Event;
 	ZBRA city;	//declaration of the highest ZBRA (city)
 	FOP* character; //declaration of the character pointing to any FOP being controlled by the player
+	int renderdistance;
 
 	public:
 	int onExecute();

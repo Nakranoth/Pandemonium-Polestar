@@ -183,3 +183,17 @@ int FOP::getCurrentFrame()
 {
 	return currentFrame;
 }
+
+int FOP::getCurrentFrameOffset()
+{
+	if(Yvel > 0) //if moving down, we want the first row in char.bmp
+		frameOffset = 0;
+	else if(Yvel < 0) //if moving up, we want the second row
+		frameOffset = 1;
+	else if(Xvel < 0) //if moving left, we want the third row
+		frameOffset = 2;
+	else if(Xvel > 0) //if moving right, we want the fourth row
+		frameOffset = 3;
+
+	return frameOffset; //face user by default
+}
