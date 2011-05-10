@@ -134,7 +134,7 @@ FOP* FOP::Character(int x, int y, Tile* ref)
 
 void FOP::startAnimation()
 {
-	if(oldTime + frameRate > SDL_GetTicks())
+	if((unsigned)oldTime + (unsigned)frameRate > SDL_GetTicks())
 	{
 		return;
 	}

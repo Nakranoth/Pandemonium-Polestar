@@ -369,22 +369,22 @@ void GUI::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 	//UP
 	if(sym == SDLK_UP)
 	{
-		character->Yvel -= 2;
+		character->Yvel -= 1;
 	}
 	//DOWN
 	if(sym == SDLK_DOWN)
 	{
-		character->Yvel += 2;
+		character->Yvel += 1;
 	}
 	//LEFT
 	if(sym == SDLK_LEFT)
 	{
-		character->Xvel -= 2;
+		character->Xvel -= 1;
 	}
 	//RIGHT
 	if(sym == SDLK_RIGHT)
 	{
-		character->Xvel += 2;
+		character->Xvel += 1;
 	}
 	//ESCAPE
 	if(sym == SDLK_ESCAPE)
@@ -450,30 +450,110 @@ void GUI::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode)
  *************************************/
 bool GUI::checkCollision(FOP* fop)
 {
-	//North
-	if(fop->Yvel < 0 && fop->location->north->type == Tile::WALL && (fop->y - fop->length/2 + fop->Yvel) < fop->location->y*Tile::SIZE)
+	//check North tile
+	if(fop->Yvel < 0)
 	{
-		fop->Yvel = 0;
-		return true;
-	}
-	//South
-	if(fop->Yvel > 0 && fop->location->south->type == Tile::WALL && (fop->y + fop->length/2 + fop->Yvel) > fop->location->south->y*Tile::SIZE)
-	{
-		fop->Yvel = 0;
-		return true;
-	}
-	//East
-	if(fop->Xvel > 0 && fop->location->east->type == Tile::WALL && (fop->x + fop->width/2 + fop->Xvel) > fop->location->east->x*Tile::SIZE)
-	{
-		fop->Xvel = 0;
-		return true;
-	}
-	//West
-	if(fop->Xvel < 0 && fop->location->west->type == Tile::WALL && (fop->x - fop->width/2 + fop->Xvel) < fop->location->x*Tile::SIZE)
-	{
-		fop->Xvel = 0;
-		return true;
+		if(fop->location->north->type == Tile::WALL && (fop->y - fop->length/2 + fop->Yvel) < fop->location->y*Tile::SIZE)
+		{
+			fop->Yvel = 0;
+			return true;
+		}
+		//Do an extra check for horizontals (so your not moving partially into a side wall as you move up)
+		//check the fop against the fop's northwest using the fop's left boundary and top boundary
+		else if(checkCollisionCorners(fop, fop->location->north->west, (fop->x - fop->width/2) + fop->Xvel, (fop->y - fop->width/2) + fop->Yvel))
+		{
+			fop->Yvel = 0;
+			return true;
+		}
+		//check the fop against the fop's northeast using the fop's right boundary and top boundary
+		else if(checkCollisionCorners(fop, fop->location->north->east, (fop->x + fop->width/2) + fop->Xvel, (fop->y - fop->width/2) + fop->Yvel))
+		{
+			fop->Yvel = 0;
+			return true;
+		}
 	}
 
+
+
+	//South
+	if(fop->Yvel > 0)
+	{
+		if(fop->location->south->type == Tile::WALL && (fop->y + fop->length/2 + fop->Yvel) > fop->location->south->y*Tile::SIZE)
+		{
+			fop->Yvel = 0;
+			return true;
+		}
+		//check the fop against the fop's southwest using the fop's left boundary and bottom boundary
+		else if(checkCollisionCorners(fop, fop->location->south->west, (fop->x - fop->width/2) + fop->Xvel, (fop->y + fop->width/2) + fop->Yvel))
+		{
+			fop->Yvel = 0;
+			return true;
+		}
+		//check the fop against the fop's southeast using the fop's right boundary and bottom boundary
+		else if(checkCollisionCorners(fop, fop->location->south->east, (fop->x + fop->width/2) + fop->Xvel, (fop->y + fop->width/2) + fop->Yvel))
+		{
+			fop->Yvel = 0;
+			return true;
+		}
+	}
+
+
+
+	//East
+	if(fop->Xvel > 0)
+	{
+		if(fop->location->east->type == Tile::WALL && (fop->x + fop->width/2 + fop->Xvel) > fop->location->east->x*Tile::SIZE)
+		{
+			fop->Xvel = 0;
+			return true;
+		}
+		//check the fop against the fop's eastnorth using the fop's right boundary and top boundary
+		else if(checkCollisionCorners(fop, fop->location->east->north, (fop->x + fop->width/2) + fop->Xvel, (fop->y - fop->width/2) + fop->Yvel))
+		{
+			fop->Xvel = 0;
+			return true;
+		}
+		//check the fop against the fop's eastsouth using the fop's right boundary and bottom boundary
+		else if(checkCollisionCorners(fop, fop->location->east->south, (fop->x + fop->width/2) + fop->Xvel, (fop->y + fop->width/2) + fop->Yvel))
+		{
+			fop->Xvel = 0;
+			return true;
+		}
+	}
+
+
+
+	//West
+	if(fop->Xvel < 0)
+	{
+		if(fop->location->west->type == Tile::WALL && (fop->x - fop->width/2 + fop->Xvel) < fop->location->x*Tile::SIZE)
+		{
+			fop->Xvel = 0;
+			return true;
+		}
+		//check the fop against the fop's westnorth using the fop's left boundary and top boundary
+		else if(checkCollisionCorners(fop, fop->location->west->north, (fop->x - fop->width/2) + fop->Xvel, (fop->y - fop->width/2) + fop->Yvel))
+		{
+			fop->Xvel = 0;
+			return true;
+		}
+		//check the fop against the fop's westsouth using the fop's left boundary and bottom boundary
+		else if(checkCollisionCorners(fop, fop->location->west->south, (fop->x - fop->width/2) + fop->Xvel, (fop->y + fop->width/2) + fop->Yvel))
+		{
+			fop->Xvel = 0;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool GUI::checkCollisionCorners(FOP* fop, Tile* corner, int charXBoundary, int charYBoundary)
+{
+	if(corner->type == Tile::WALL && charXBoundary < corner->x*Tile::SIZE + Tile::SIZE && charXBoundary > corner->x*Tile::SIZE && charYBoundary < corner->y*Tile::SIZE + Tile::SIZE && charYBoundary > corner->y*Tile::SIZE)
+	{
+		cout<<"HALFWAY DETECT\n";
+		return true;
+	}
 	return false;
 }

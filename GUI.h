@@ -41,6 +41,7 @@ class GUI : public Events
 	void OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode);
 	void OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode);
 	bool checkCollision(FOP* fop);
+	bool checkCollisionCorners(FOP* fop, Tile* corner, int charXBoundary, int charYBoundary);
 };
 
 #endif
