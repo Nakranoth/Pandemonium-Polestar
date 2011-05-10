@@ -27,7 +27,6 @@ class ZBRA
 		vector<ZBRA*> adjacent;	//ZBRAs near myself.
 		ZBRA** subAreaArray;	//For Debugging purposes only.
 		Map* map;	//tiles the ZBRA contains
-		vector<FOP*> fops;	//the FOPs of the ZBRA
 		int minSize;
 		int idealSize;
 		short floor, wall;
@@ -54,8 +53,8 @@ class ZBRA
 		int getIdealSize();
 		void solveRecursive();
 		void buildMap(Tile* superParent);//my parent's reference tile.
+		void AddFop(FOP* fop, Tile* tile); //builds list of fops contained in a tile
 		void AddFop(FOP* fop); //builds list of fops contained in this ZBRA
-		
 		void printDimsRecursive();
 };
 

@@ -2,9 +2,11 @@
 #define _FOP_
 
 #include <vector>
+#include <SDL/SDL.h>
 
-#include "Tile.h"
+class Tile;
 #include "Action.h"
+#include "SurfaceLoader.h"
 
 using namespace std;
 
@@ -16,8 +18,25 @@ class FOP
 		vector<int> actions;	//holds the actions that can be performed on this FOP
 		int width; //holds the pixel width of the FOP
 		int length; //holds the pixel length of the FOP
-		int x;
-		int y;
+		int x; //x position of this FOP
+		int y; //y position of this FOP
+		int Xvel; //x velocity of this fop (only non zero on moving AI)
+		int Yvel; //y velocity of this fop (only non zero on moving AI)
+		Tile* location; //holds the tile that the FOP is located on
+
+		SDL_Surface* image; //holds the pointer to the image of this file
+		Uint8 colorkey;
+
+		//animation type variables
+		int maxFrames;
+		bool oscillate;
+
+	private:
+		//animation type variables
+		int currentFrame;
+		int frameIncrement;
+		int frameRate; //miliseconds
+		long oldTime;
 	public:
 		FOP();
 		~FOP();
@@ -28,6 +47,13 @@ class FOP
 		FOP* Toilet();
 		FOP* Bed();
 		FOP* Cat();
+		FOP* Character(int x, int y, Tile* ref);
+
+		void setFrameRate(int rate);
+		void setCurrentFrame(int frame);
+		int getCurrentFrame();
+		void startAnimation();
+		void stopAnimation();
 		
 	private:
 		int getSize();	//Gets the length and width of the FOP
