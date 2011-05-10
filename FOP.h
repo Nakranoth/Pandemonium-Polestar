@@ -34,6 +34,7 @@ class FOP
 	private:
 		//animation type variables
 		int currentFrame;
+		int frameOffset;
 		int frameIncrement;
 		int frameRate; //miliseconds
 		long oldTime;
@@ -52,6 +53,7 @@ class FOP
 		void setFrameRate(int rate);
 		void setCurrentFrame(int frame);
 		int getCurrentFrame();
+		int getCurrentFrameOffset(); //This returns the appropriate number dependent on the direction
 		void startAnimation();
 		void stopAnimation();
 		

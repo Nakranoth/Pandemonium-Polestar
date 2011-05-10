@@ -187,7 +187,7 @@ void GUI::Logic()
 void GUI::Render(Tile* ref)
 {
 	//Draw the character everytime
-	SurfaceLoader::DrawImage(screen, CHARACTER, 320 - (character->width / 2), 240 - (character->length / 2), 0, character->getCurrentFrame()*character->length, character->width, character->length);
+	SurfaceLoader::DrawImage(screen, CHARACTER, 320 - (character->width / 2), 240 - (character->length / 2), character->getCurrentFrameOffset()*character->length, character->getCurrentFrame()*character->length, character->width, character->length);
 
 	//Draw the location tile of the character (should be under character)
 	//SurfaceLoader::DrawImage(screen, TILES, (character->location->x)*Tile::SIZE + (320 - character->x), (character->location->y)*Tile::SIZE + (240 - character->y), 120, 30, Tile::SIZE, Tile::SIZE);
