@@ -71,11 +71,11 @@ void ZBRA::buildMap(Tile* superParent){
 		pPoint = map->ref;
 		cPoint = (*child)->map->ref;
 		
-		Map::stitch(pPoint,cPoint,(*child)->wall,&map->ref,&(*child)->map->ref);
+		Map::stitch(pPoint,cPoint,(*child)->wall,(*child)->map);
 		map->checkConsistency((*child)->map->ref);
 	}
 	
-	for (vector<ZBRA*>::iterator adj = adjacent.begin(); adj < adjacent.end(); adj++){
+	/*for (vector<ZBRA*>::iterator adj = adjacent.begin(); adj < adjacent.end(); adj++){
 		(*adj)->buildMap(map->ref);//readies children maps
 		Tile* pPoint;	//parent reference tile for stiching
 		Tile* cPoint;	//child reference tile for stiching
@@ -83,9 +83,9 @@ void ZBRA::buildMap(Tile* superParent){
 		pPoint = superParent;
 		cPoint = (*adj)->map->ref;
 		
-		Map::stitch(pPoint,cPoint,(*adj)->wall,&map->ref,&(*adj)->map->ref);
+		Map::stitch(pPoint,cPoint,(*adj)->wall,(*adj)->map);
 		map->checkConsistency((*adj)->map->ref);
-	}
+	}*/
 }
 
 void ZBRA::recursiveWiggle(int x, int y){
@@ -125,7 +125,7 @@ ZBRA* ZBRA::House(int randSeed)
 	seed = randSeed;
 	flags = ZBRA::SOFT;
 	floor = Tile::UDEF;
-	wall = Tile::WALL;
+	wall = Tile::UDEF;
 	//for now every house will contain 1 bathroom kitchen and living room and 2 bedrooms
 	subArea.push_back((new ZBRA)->LivingRoom(random()));
 	//for now every house will contain 1 cat

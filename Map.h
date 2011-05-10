@@ -28,15 +28,11 @@ class Map
 		~Map();
 		void populate();
 		void checkConsistency(Tile* ref);
-		static void delChunk(Tile* ref);
-		static void unstitch(Tile* ref, int width, int height);
-		static void stitch(Tile* pRef, Tile* cRef, int wall,Tile** pAddr, Tile** cAddr);	//stiches together a parent and child
+		static void stitch(Tile* pRef, Tile* cRef, int wall, Map* cMap);	//stiches together a parent and child
 		
 	private:
-		static void runEast(Tile* inRunner, Tile* outRunner, int wall, int orient, bool first);
-		static void runSouth(Tile* inRunner, Tile* outRunner, int wall, int orient, bool first);
-		static void runWest(Tile* inRunner, Tile* outRunner, int wall, int orient, bool first);
-		static void runNorth(Tile* inRunner, Tile* outRunner, int wall, int orient, bool first);
+		static void cloneRow(Tile* pRef, Tile* cRef, bool east);//east or west
+		static void cloneTile(Tile* pRef, Tile* cRef);//east or west
 };
 
 #endif
