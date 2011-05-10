@@ -38,7 +38,7 @@ int GUI::onExecute()
 			EventHandler(&Event);
 		}
 			Logic();
-			RenderMap(city.map->ref);
+			RenderMap(character->location); //city.map->ref taken out for rendering around character...
 	}
 
 	//Before exiting take care of any cleaning up
@@ -68,6 +68,9 @@ bool GUI::Initialize()
 
 	character->maxFrames = 5;
 	character->oscillate = false;
+
+	//setting up the initial render distance...could change for certain unlit areas 
+	renderdistance = 11;
 
 	//Telling SDL to initialize everything it has...
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -293,19 +296,29 @@ void GUI::RenderMap(Tile* refTile)
 		it = toRender.begin();
 		Tile* curr = *it;
 
-		if (curr->north && !isRendered.count(curr->north)){
-			toRender.insert(curr->north);
+		//check to see if it is too far from the player to render
+		if(abs(character->location->x - curr->x) > renderdistance || abs(character->location->y - curr->y) > renderdistance)
+		{
+			isRendered.insert(curr);
+			toRender.erase(it);
+			continue;
 		}
-		if (curr->west && !isRendered.count(curr->west)){
-			toRender.insert(curr->west);
+		else
+		{
+			if (curr->north && !isRendered.count(curr->north)){
+				toRender.insert(curr->north);
+			}
+			if (curr->west && !isRendered.count(curr->west)){
+				toRender.insert(curr->west);
+			}
+			if (curr->south && !isRendered.count(curr->south)){
+				toRender.insert(curr->south);
+			}
+			if (curr->east && !isRendered.count(curr->east)){
+				toRender.insert(curr->east);
+			}
 		}
-		if (curr->south && !isRendered.count(curr->south)){
-			toRender.insert(curr->south);
-		}
-		if (curr->east && !isRendered.count(curr->east)){
-			toRender.insert(curr->east);
-		}
-			
+
 		Render(curr);
 		isRendered.insert(curr);
 		toRender.erase(it);
