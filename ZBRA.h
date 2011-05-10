@@ -52,7 +52,7 @@ class ZBRA
 		int getMinSize();	//Gets the sizes of this->subArea
 		int getIdealSize();
 		void solveRecursive();
-		void buildMap();
+		void buildMap(Tile* superParent);//my parent's reference tile.
 		void AddFop(FOP* fop, Tile* tile); //builds list of fops contained in a tile
 		void AddFop(FOP* fop); //builds list of fops contained in this ZBRA
 		void printDimsRecursive();

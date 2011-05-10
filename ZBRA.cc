@@ -59,21 +59,33 @@ void ZBRA::solveRecursive(){
 	DimSolv lambda(this);
 }
 
-void ZBRA::buildMap(){
+void ZBRA::buildMap(Tile* superParent){
 	map = new Map(dims.x,dims.y,dims.width,dims.height,floor,wall);
 	map->populate();
-	if (subArea.size()) {subArea[0]->buildMap();
-	//for (vector<ZBRA*>::iterator test = adjacent.begin(); test < adjacent.end(); test++){
-		//(*test)->buildMap();//readies children maps
+	//if (subArea.size()) {
+		for (vector<ZBRA*>::iterator child = subArea.begin(); child < subArea.end(); child++){
+		(*child)->buildMap(map->ref);//readies children maps
 		Tile* pPoint;	//parent reference tile for stiching
 		Tile* cPoint;	//child reference tile for stiching
 		
 		pPoint = map->ref;
-		cPoint = subArea[0]->map->ref;
+		cPoint = (*child)->map->ref;
 		
-		Map::stitch(pPoint,cPoint,subArea[0]->wall,&map->ref,&subArea[0]->map->ref);
-		map->checkConsistency(subArea[0]->map->ref);}
-	//}
+		Map::stitch(pPoint,cPoint,(*child)->wall,(*child)->map);
+		map->checkConsistency((*child)->map->ref);
+	}
+	
+	for (vector<ZBRA*>::iterator adj = adjacent.begin(); adj < adjacent.end(); adj++){
+		(*adj)->buildMap(map->ref);//readies children maps
+		Tile* pPoint;	//parent reference tile for stiching
+		Tile* cPoint;	//child reference tile for stiching
+		
+		pPoint = superParent;
+		cPoint = (*adj)->map->ref;
+		
+		Map::stitch(pPoint,cPoint,(*adj)->wall,(*adj)->map);
+		map->checkConsistency((*adj)->map->ref);
+	}
 }
 
 void ZBRA::recursiveWiggle(int x, int y){
@@ -103,7 +115,7 @@ ZBRA* ZBRA::City()
 	idealSize = 900 + getIdealSize();
 	solveRecursive();
 	printDimsRecursive();
-	buildMap();
+	buildMap(NULL);
 	AddFop((new FOP)->Character(320, 240, map->ref), map->ref);
 	return this;
 }
@@ -113,7 +125,7 @@ ZBRA* ZBRA::House(int randSeed)
 	seed = randSeed;
 	flags = ZBRA::SOFT;
 	floor = Tile::UDEF;
-	wall = Tile::WALL;
+	wall = Tile::UDEF;
 	//for now every house will contain 1 bathroom kitchen and living room and 2 bedrooms
 	subArea.push_back((new ZBRA)->LivingRoom(random()));
 	//for now every house will contain 1 cat
@@ -153,7 +165,10 @@ ZBRA* ZBRA::LivingRoom(int randSeed){
 	floor = Tile::FLOOR;
 	wall = Tile::WALL;
 	adjacent.push_back((new ZBRA)->Kitchen(random()));
-	adjacent.push_back((new ZBRA)->HouseHallway(random()));	
+	//adjacent.push_back((new ZBRA)->HouseHallway(random()));	
+	adjacent.push_back((new ZBRA)->BathRoom(random()));
+	adjacent.push_back((new ZBRA)->BedRoom(random()));
+	adjacent.push_back((new ZBRA)->BedRoom(random()));
 	//every living room for now will contain only 1 sofa
 	//AddFop((new FOP)->Sofa(), map->ref);
 	minSize = 30;
@@ -164,11 +179,9 @@ ZBRA* ZBRA::LivingRoom(int randSeed){
 ZBRA* ZBRA::HouseHallway(int randSeed){
 	seed = randSeed;
 	flags = ZBRA::LONG;
-	floor = Tile::FLOOR;
+	floor = Tile::ROAD;
 	wall = Tile::WALL;
-	adjacent.push_back((new ZBRA)->BathRoom(random()));
-	adjacent.push_back((new ZBRA)->BedRoom(random()));
-	adjacent.push_back((new ZBRA)->BedRoom(random()));
+
 	minSize = 30;
 	idealSize = 45;
 	return this;
