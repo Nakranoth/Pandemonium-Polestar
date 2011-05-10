@@ -75,7 +75,7 @@ void ZBRA::buildMap(Tile* superParent){
 		map->checkConsistency((*child)->map->ref);
 	}
 	
-	/*for (vector<ZBRA*>::iterator adj = adjacent.begin(); adj < adjacent.end(); adj++){
+	for (vector<ZBRA*>::iterator adj = adjacent.begin(); adj < adjacent.end(); adj++){
 		(*adj)->buildMap(map->ref);//readies children maps
 		Tile* pPoint;	//parent reference tile for stiching
 		Tile* cPoint;	//child reference tile for stiching
@@ -85,7 +85,7 @@ void ZBRA::buildMap(Tile* superParent){
 		
 		Map::stitch(pPoint,cPoint,(*adj)->wall,(*adj)->map);
 		map->checkConsistency((*adj)->map->ref);
-	}*/
+	}
 }
 
 void ZBRA::recursiveWiggle(int x, int y){
@@ -165,7 +165,10 @@ ZBRA* ZBRA::LivingRoom(int randSeed){
 	floor = Tile::FLOOR;
 	wall = Tile::WALL;
 	adjacent.push_back((new ZBRA)->Kitchen(random()));
-	adjacent.push_back((new ZBRA)->HouseHallway(random()));	
+	//adjacent.push_back((new ZBRA)->HouseHallway(random()));	
+	adjacent.push_back((new ZBRA)->BathRoom(random()));
+	adjacent.push_back((new ZBRA)->BedRoom(random()));
+	adjacent.push_back((new ZBRA)->BedRoom(random()));
 	//every living room for now will contain only 1 sofa
 	//AddFop((new FOP)->Sofa(), map->ref);
 	minSize = 30;
@@ -176,11 +179,9 @@ ZBRA* ZBRA::LivingRoom(int randSeed){
 ZBRA* ZBRA::HouseHallway(int randSeed){
 	seed = randSeed;
 	flags = ZBRA::LONG;
-	floor = Tile::FLOOR;
+	floor = Tile::ROAD;
 	wall = Tile::WALL;
-	adjacent.push_back((new ZBRA)->BathRoom(random()));
-	adjacent.push_back((new ZBRA)->BedRoom(random()));
-	adjacent.push_back((new ZBRA)->BedRoom(random()));
+
 	minSize = 30;
 	idealSize = 45;
 	return this;

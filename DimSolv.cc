@@ -311,6 +311,16 @@ void DimSolv::amalgamateAdjacent(ZBRA* solveme, vector<ZBRA*> adjacent, bool asA
 		}
 	}
 	bool clockwise = (rand > RAND_MAX / 2 );
+	/*for (vector<ZBRA*>::iterator i = left.begin(); i != left.end(); i++){
+		right.push_back(*i);
+	}
+	for (vector<ZBRA*>::iterator i = bottom.begin(); i != bottom.end(); i++){
+		right.push_back(*i);
+	}
+	for (vector<ZBRA*>::iterator i = top.begin(); i != top.end(); i++){
+		right.push_back(*i);
+	}*/
+	
 	if (top.size()){
 		if (leftHeight > solveme->dims.height && clockwise){
 			putTop(top,solveme,PREFER_CCW);
@@ -355,162 +365,163 @@ void DimSolv::amalgamateAdjacent(ZBRA* solveme, vector<ZBRA*> adjacent, bool asA
 			putRight(right,solveme,0);
 		}
 	}
+	cerr <<"\n";
 }
 void DimSolv::longSolver(ZBRA* solveme, bool asAdjacent, ZBRA* parent){ standardSolver(solveme,asAdjacent,parent);}
 
 void DimSolv::putTop(vector<ZBRA*> toAdd, ZBRA* solveme, int availOrient){
 	//connect the set left/right wise, joined by bottom corners.
+	cerr << "TOP " << toAdd.size() << '\n';
 	int rand = random();
-	int left = (*toAdd.begin())->dims.x;
-	int right = (*toAdd.begin())->dims.x + (*toAdd.begin())->dims.width;
+	int wallCorr = solveme->wall == Tile::UDEF? 0: 1;
+	int left = (*toAdd.begin())->dims.x - wallCorr;
+	int right = (*toAdd.begin())->dims.x + (*toAdd.begin())->dims.width + wallCorr;
 	ZBRA* leftMost;
 	ZBRA* rightMost;
 	leftMost = rightMost = *toAdd.begin();  
-	setEffSpot(*toAdd.begin(),solveme->dims.x,solveme->dims.y + (*toAdd.begin())->dims.height);
+	setEffSpot(*toAdd.begin(),solveme->dims.x,solveme->dims.y - (*toAdd.begin())->dims.height - wallCorr);
 	for (vector<ZBRA*>::iterator i = toAdd.begin() + 1; i != toAdd.end(); i++){
 		if (rand < RAND_MAX / 2){
-			setEffSpot(*i, left - (*i)->dims.width, solveme->dims.y + (*i)->dims.height);
+			setEffSpot(*i, left - (*i)->dims.width, solveme->dims.y - (*i)->dims.height - wallCorr);
 			leftMost = *i;
-			left -= (*i)->dims.width;
+			left -= (*i)->dims.width + wallCorr;
 		}
 		else{
-			setEffSpot(*i,right,solveme->dims.y + (*i)->dims.height);
+			setEffSpot(*i,right,solveme->dims.y - (*i)->dims.height - wallCorr);
 			rightMost = *i;
-			right += (*i)->dims.width;
+			right += (*i)->dims.width + wallCorr;
 		}
 		rand = random();
 	}
 	//shift left-right according to total sizes and orientation.
-	if (right - left > solveme->dims.width && availOrient != 0){
-		if (availOrient & PREFER_CW){	//shift to right corner of solveme.
-			int shift = right - solveme->dims.x + solveme->dims.width;
-			wiggle(toAdd,shift,0);
-		}
-		else if (availOrient & PREFER_CCW){
-			int shift = left - solveme->dims.x;
-			wiggle(toAdd,shift,0);
-		}
+	if (availOrient == 0 || right - left <= solveme->dims.width){
+		if (rand < RAND_MAX / 2) availOrient = PREFER_CW;
+		else availOrient = PREFER_CCW;
 	}
-	else{	//just put us so that we make contact.
-		int shift = min(left - solveme->dims.x,right - solveme->dims.x + solveme->dims.width);
-		wiggle(toAdd,shift,0); 
+	if (availOrient & PREFER_CW){	//shift to right corner of solveme.
+		int shift = -(right - (solveme->dims.x + solveme->dims.width));
+		wiggle(toAdd,shift,0);
 	}
+	else if (availOrient & PREFER_CCW){
+		int shift = solveme->dims.x - left - 1;
+		cerr << "left";
+		wiggle(toAdd,shift,0);
+		cerr << left - solveme->dims.x << endl;
+	} 
 }
 
 void DimSolv::putBottom(vector<ZBRA*> toAdd, ZBRA* solveme, int availOrient){
 	//connect the set left/right wise, joined by top corners.
+	cerr << "BOTTOM " << toAdd.size() << '\n';
 	int rand = random();
-	int left = (*toAdd.begin())->dims.x;
-	int right = (*toAdd.begin())->dims.x + (*toAdd.begin())->dims.width;
+	int wallCorr = solveme->wall == Tile::UDEF? 0: 1;
+	int left = (*toAdd.begin())->dims.x - wallCorr;
+	int right = (*toAdd.begin())->dims.x + (*toAdd.begin())->dims.width + wallCorr;
 	ZBRA* leftMost;
 	ZBRA* rightMost;
-	leftMost = rightMost = *toAdd.begin();
-	setEffSpot(*toAdd.begin(),solveme->dims.x,solveme->dims.y + solveme->dims.height);
+	leftMost = rightMost = *toAdd.begin();  
+	setEffSpot(*toAdd.begin(),solveme->dims.x,solveme->dims.y + solveme->dims.height + wallCorr);
 	for (vector<ZBRA*>::iterator i = toAdd.begin() + 1; i != toAdd.end(); i++){
 		if (rand < RAND_MAX / 2){
-			setEffSpot(*i, left - (*i)->dims.width, solveme->dims.y + (*i)->dims.height);
+			setEffSpot(*i, left - (*i)->dims.width, solveme->dims.y + solveme->dims.height + wallCorr);
 			leftMost = *i;
-			left -= (*i)->dims.width;
+			left -= (*i)->dims.width + wallCorr;
 		}
 		else{
-			setEffSpot(*i,right,solveme->dims.y + (*i)->dims.height);
+			setEffSpot(*i,right,solveme->dims.y + solveme->dims.height + wallCorr);
 			rightMost = *i;
-			right += (*i)->dims.width;
+			right += (*i)->dims.width + wallCorr;
 		}
 		rand = random();
 	}
 	//shift left-right according to total sizes and orientation.
-	if (right - left > solveme->dims.width && availOrient != 0){
-		if (availOrient & PREFER_CCW){	//shift to left corner of solveme.
-			int shift = right - solveme->dims.x + solveme->dims.width;
-			wiggle(toAdd,shift,0);
-		}
-		else if (availOrient & PREFER_CW){
-			int shift = left - solveme->dims.x;
-			wiggle(toAdd,shift,0);
-		}
+	if (availOrient == 0 || right - left <= solveme->dims.width){
+		if (rand < RAND_MAX / 2) availOrient = PREFER_CW;
+		else availOrient = PREFER_CCW;
 	}
-	else{	//just put us so that we make contact.
-		int shift = min(left - solveme->dims.x,right - solveme->dims.x + solveme->dims.width);
-		wiggle(toAdd,shift,0); 
+	if (availOrient & PREFER_CCW){	//shift to right corner of solveme.
+		int shift = -(right - (solveme->dims.x + solveme->dims.width));
+		wiggle(toAdd,shift,0);
+	}
+	else if (availOrient & PREFER_CW){
+		int shift = solveme->dims.x - left - 1;
+		cerr << "left";
+		wiggle(toAdd,shift,0);
+		cerr << left - solveme->dims.x << endl;
 	}
 }
 
 void DimSolv::putLeft(vector<ZBRA*> toAdd, ZBRA* solveme, int availOrient){
 //connect the set up/down wise, joined by right edge.
 	int rand = random();
+	int wallCorr = solveme->wall == Tile::UDEF? 0: 1;
 	int top = (*toAdd.begin())->dims.y;
 	int bottom = (*toAdd.begin())->dims.y + (*toAdd.begin())->dims.height;
-	ZBRA* topMost;
-	ZBRA* bottomMost;
-	topMost = bottomMost = *toAdd.begin();
-	setEffSpot(*toAdd.begin(),solveme->dims.x - (*toAdd.begin())->dims.width,solveme->dims.y);
+	setEffSpot(*toAdd.begin(),solveme->dims.x - (*toAdd.begin())->dims.width - wallCorr,solveme->dims.y);
 	for (vector<ZBRA*>::iterator i = toAdd.begin() + 1; i != toAdd.end(); i++){
 		if (rand < RAND_MAX / 2){
-			setEffSpot(*i, solveme->dims.x - (*i)->dims.width, top - (*i)->dims.height);
-			topMost = *i;
-			top -= (*i)->dims.height;
+			setEffSpot(*i, solveme->dims.x - (*i)->dims.width - wallCorr, top - (*i)->dims.height);
+			top -= (*i)->dims.height + wallCorr;
 		}
 		else{
-			setEffSpot(*i,solveme->dims.x - (*i)->dims.width, bottom);
-			bottomMost = *i;
-			bottom += (*i)->dims.height;
+			setEffSpot(*i,solveme->dims.x - (*i)->dims.width - wallCorr, bottom);
+			bottom += (*i)->dims.height + wallCorr;
 		}
 		rand = random();
 	}
 	//shift left-right according to total sizes and orientation.
-	if (bottom - top > solveme->dims.height && availOrient != 0){
-		if (availOrient & PREFER_CW){	//shift to left corner of solveme.
-			int shift = bottom - solveme->dims.y + solveme->dims.height;
-			wiggle(toAdd,0,shift);
-		}
-		else if (availOrient & PREFER_CCW){
-			int shift = top - solveme->dims.y;
-			wiggle(toAdd,0,shift);
-		}
+	if (availOrient == 0 || bottom - top <= solveme->dims.height){
+		if (rand < RAND_MAX / 2) availOrient = PREFER_CW;
+		else availOrient = PREFER_CCW;
 	}
-	else{	//just put us so that we make contact.
-		int shift = min(top - solveme->dims.y,bottom - solveme->dims.y + solveme->dims.height);
-		wiggle(toAdd,0,shift); 
+	
+	if (availOrient & PREFER_CW){	//shift to bottom corner of solveme.
+					//-(right - (solveme->dims.x + solveme->dims.width))
+		int shift = -(bottom - (solveme->dims.y + solveme->dims.height));
+		wiggle(toAdd,0,shift);
+	}
+	else if (availOrient & PREFER_CCW){
+					//solveme->dims.x - left - 1;
+		int shift = solveme->dims.y - top - 1;
+		wiggle(toAdd,0,shift);
 	}
 }
 
+
 void DimSolv::putRight(vector<ZBRA*> toAdd, ZBRA* solveme, int availOrient){
 //connect the set up/down wise, joined by left edge.
+	//connect the set up/down wise, joined by right edge.
 	int rand = random();
+	int wallCorr = solveme->wall == Tile::UDEF? 0: 1;
 	int top = (*toAdd.begin())->dims.y;
 	int bottom = (*toAdd.begin())->dims.y + (*toAdd.begin())->dims.height;
-	ZBRA* topMost;
-	ZBRA* bottomMost;
-	topMost = bottomMost = *toAdd.begin();
-	setEffSpot(*toAdd.begin(), solveme->dims.x - (*toAdd.begin())->dims.width,solveme->dims.y);
+	setEffSpot(*toAdd.begin(),solveme->dims.x + solveme->dims.width + wallCorr,solveme->dims.y);
 	for (vector<ZBRA*>::iterator i = toAdd.begin() + 1; i != toAdd.end(); i++){
 		if (rand < RAND_MAX / 2){
-			setEffSpot(*i, solveme->dims.x - (*i)->dims.width, top - (*i)->dims.height);
-			topMost = *i;
-			top -= (*i)->dims.height;
+			setEffSpot(*i, solveme->dims.x + solveme->dims.width + wallCorr, top - (*i)->dims.height);
+			top -= (*i)->dims.height + wallCorr;
 		}
 		else{
-			setEffSpot(*i,solveme->dims.x - (*i)->dims.width, bottom);
-			bottomMost = *i;
-			bottom += (*i)->dims.height;
+			setEffSpot(*i,solveme->dims.x + solveme->dims.width + wallCorr, bottom);
+			bottom += (*i)->dims.height + wallCorr;
 		}
 		rand = random();
 	}
 	//shift left-right according to total sizes and orientation.
-	if (bottom - top > solveme->dims.height && availOrient != 0){
-		if (availOrient & PREFER_CCW){	//shift to left corner of solveme.
-			int shift = bottom - solveme->dims.y + solveme->dims.height;
-			wiggle(toAdd,0,shift);
-		}
-		else if (availOrient & PREFER_CW){
-			int shift = top - solveme->dims.y;
-			wiggle(toAdd,0,shift);
-		}
+	if (availOrient == 0 || bottom - top <= solveme->dims.height){
+		if (rand < RAND_MAX / 2) availOrient = PREFER_CW;
+		else availOrient = PREFER_CCW;
 	}
-	else{	//just put us so that we make contact.
-		int shift = min(top - solveme->dims.y,bottom - solveme->dims.y + solveme->dims.height);
-		wiggle(toAdd,0,shift); 
+	
+	if (availOrient & PREFER_CCW){	//shift to bottom corner of solveme.
+					//-(right - (solveme->dims.x + solveme->dims.width))
+		int shift = -(bottom - (solveme->dims.y + solveme->dims.height));
+		wiggle(toAdd,0,shift);
+	}
+	else if (availOrient & PREFER_CW){
+					//solveme->dims.x - left - 1;
+		int shift = solveme->dims.y - top - 1;
+		wiggle(toAdd,0,shift);
 	}
 }
 
