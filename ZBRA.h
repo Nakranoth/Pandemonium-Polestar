@@ -33,6 +33,7 @@ class ZBRA
 		bounds dims;
 		bounds effDims;	//effective dimensions: this + adjacents.
 		int seed;
+		set<Tile*> walls; // must only be populated after city is finalized.
 
 	private:
 		vector<FOP*> fopslist; //FOPS within this ZBRA
@@ -61,6 +62,8 @@ class ZBRA
 		void AddFop(FOP* fop); //builds list of fops contained in this ZBRA to iterate through later for tile placement
 		void placeFops(); //places fops for each ZBRA into each ZBRA's tiles
 		void printDimsRecursive();
+		void findWalls(Tile* cityRef, set<Tile*> pWalls);//cityRef we can go to the proper tile set
+		void addDoors();
 };
 
 #endif

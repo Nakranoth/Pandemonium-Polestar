@@ -92,6 +92,142 @@ void ZBRA::buildMap(Tile* superParent){
 	}
 }
 
+void ZBRA::findWalls(Tile* ref, set<Tile*> pWalls){
+	if (floor == Tile::UDEF){
+		for (set<Tile*>::iterator it = pWalls.begin(); it != pWalls.end(); it++){
+			walls.insert(*it);
+		}
+	}
+	else{
+		while(ref->x < dims.x){
+			if (ref->east != NULL){
+				ref = ref->east;
+			}
+			else{
+				cerr << "Bump x\n";
+				return;
+			}
+		}
+		while(ref->y < dims.y){
+			if (ref->south != NULL){
+				ref = ref->south;
+			}
+			else{
+				cerr << "Bump y\n";
+				return;
+			}
+		}
+		//we need the walls surrounding the area. (read, not floor)
+		set<Tile*> toCheck;
+		toCheck.insert(ref);
+		//ref->type = Tile::ROAD;
+		//create a list of things that have already been checked for walls
+		set<Tile*> isChecked;
+		while(!toCheck.empty()){
+			set<Tile*>::iterator it = toCheck.begin(); 
+			Tile* curr = *it;
+			if (!curr) return;
+			if (curr->north && !isChecked.count(curr->north)){
+				if (curr->north->type == floor)
+					toCheck.insert(curr->north);
+				else{
+					walls.insert(curr->north);
+	//curr->north->type = Tile::ROAD;
+				}
+			}
+			if (curr->west && !isChecked.count(curr->west)){
+				if (curr->west->type == floor)
+					toCheck.insert(curr->west);
+				else{
+					walls.insert(curr->west);
+	//curr->west->type = Tile::ROAD;
+				}
+			}
+			if (curr->south && !isChecked.count(curr->south)){
+				if (curr->south->type == floor)
+					toCheck.insert(curr->south);
+				else{
+					walls.insert(curr->south);
+	//curr->south->type = Tile::ROAD;
+				}
+			}
+			if (curr->east && !isChecked.count(curr->east)){
+				if (curr->east->type == floor)
+					toCheck.insert(curr->east);
+				else{
+					walls.insert(curr->east);
+	//curr->east->type = Tile::ROAD;
+				}
+			}
+			isChecked.insert(curr);
+			toCheck.erase(it);
+		}
+	}
+	
+	for (vector<ZBRA*>::iterator child = subArea.begin(); child < subArea.end(); child++){
+		(*child)->findWalls(ref,walls);//readies children maps
+	}
+	
+	for (vector<ZBRA*>::iterator adj = adjacent.begin(); adj < adjacent.end(); adj++){
+		(*adj)->findWalls(ref,walls);//readies adjacent maps
+	}
+}
+
+void ZBRA::addDoors(){
+	for (vector<ZBRA*>::iterator child = subArea.begin(); child < subArea.end(); child++){
+		vector<Tile*> intersect;
+		if ((*child)->floor != Tile::UDEF){
+			set<Tile*>::iterator pSet, cSet;
+			cerr << walls.size() << ',' << (*child)->walls.size() << endl;
+			for (pSet = walls.begin(); pSet != walls.end(); pSet++){
+				for (cSet = (*child)->walls.begin(); cSet != (*child)->walls.end(); cSet++){
+					//cerr<< "Here?\n";
+					if((*pSet)->x == (*cSet)->x && (*pSet)->y == (*cSet)->y){
+						intersect.push_back(*pSet);
+					}
+					else{
+						//(*cSet)->type = Tile::ROAD;
+						//(*pSet)->type = Tile::UDEF;
+					}
+				}
+			}
+		}
+		
+		if (intersect.size() > 0)
+			intersect[random() / (RAND_MAX / intersect.size())]->type = Tile::DOOR;
+		//else
+			//cerr << "Non-intersecting wall chunks\n";
+		(*child)->addDoors();//readies children maps
+	}
+	
+	
+	//NEIGHBORS
+	for (vector<ZBRA*>::iterator adj = adjacent.begin(); adj < adjacent.end(); adj++){
+		vector<Tile*> intersect;
+		if ((*adj)->floor != Tile::UDEF){
+			set<Tile*>::iterator pSet, cSet;
+			//cerr << walls.size() << ',' << (*adj)->walls.size() << endl;
+			for (pSet = walls.begin(); pSet != walls.end(); pSet++){
+				for (cSet = (*adj)->walls.begin(); cSet != (*adj)->walls.end(); cSet++){
+					//cerr<< "Here?\n";
+					if((*pSet)->x == (*cSet)->x && (*pSet)->y == (*cSet)->y){
+						intersect.push_back(*pSet);
+					}
+					else{
+						//(*cSet)->type = Tile::ROAD;
+						//(*pSet)->type = Tile::UDEF;
+					}
+				}
+			}
+		}
+		
+		if (intersect.size() > 0)
+			intersect[random() / (RAND_MAX / intersect.size())]->type = Tile::DOOR;
+		(*adj)->addDoors();//readies adjacent maps
+	}
+	
+}
+
 void ZBRA::recursiveWiggle(int x, int y){
 	dims.x += x;
 	dims.y += y;
@@ -144,6 +280,8 @@ ZBRA* ZBRA::City()
 	solveRecursive();
 	printDimsRecursive();
 	buildMap(NULL);
+	findWalls(map->ref,walls);
+	addDoors();
 	AddFop((new FOP)->Character(320, 240, map->ref), map->ref);
 	return this;
 }
