@@ -10,6 +10,7 @@
 #include "SurfaceLoader.h"
 #include "Events.h"
 #include "FOP.h"
+#include "config.cfg"
 
 class GUI : public Events
 {
@@ -17,6 +18,9 @@ class GUI : public Events
 	private:
 	bool running;
 	SDL_Surface* screen;
+	SDL_Surface* foreground;
+	SDL_Surface* background;
+	SDL_Rect draw;
 	SDL_Surface* ICON;
 	SDL_Surface* TILES;
 	SDL_Surface* CHARACTER;

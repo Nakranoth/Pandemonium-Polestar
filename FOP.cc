@@ -42,9 +42,12 @@ FOP* FOP::Sofa()
 	actions.push_back(Action::SIT);
 	
 	char file[] = "./FOPS/sofa.bmp";
-	image = SurfaceLoader::LoadImage(file);
-	colorkey = SDL_MapRGB(image->format, 255, 42, 113);
-	SDL_SetColorKey(image, SDL_SRCCOLORKEY, colorkey); //making the image transparency set to the colorkey
+	if((image = SurfaceLoader::LoadImage(file)) == NULL)
+	{
+		cout<<"Error loading " << file << "...exiting\n";
+		exit(1);
+	}
+	SurfaceLoader::setTransparency(image, RED, GREEN, BLUE);
 	
 	return this;
 }
@@ -56,9 +59,12 @@ FOP* FOP::Refrigerator()
 	actions.push_back(Action::OPEN);
 
 	char file[] = "./FOPS/refrigerator.bmp";
-	image = SurfaceLoader::LoadImage(file);
-	colorkey = SDL_MapRGB(image->format, 255, 42, 113);
-	SDL_SetColorKey(image, SDL_SRCCOLORKEY, colorkey); //making the image transparency set to the colorkey
+	if((image =  SurfaceLoader::LoadImage(file)) == NULL)
+	{
+		cout<<"Error loading " << file << "...exiting\n";
+		exit(1);
+	}
+	SurfaceLoader::setTransparency(image, RED, GREEN, BLUE);
 
 	return this;
 }
@@ -70,9 +76,12 @@ FOP* FOP::Toilet()
 	actions.push_back(Action::SIT);
 	
 	char file[] = "./FOPS/toilet.bmp";
-	image = SurfaceLoader::LoadImage(file);
-	colorkey = SDL_MapRGB(image->format, 255, 42, 113);
-	SDL_SetColorKey(image, SDL_SRCCOLORKEY, colorkey); //making the image transparency set to the colorkey
+	if((image =  SurfaceLoader::LoadImage(file)) == NULL)
+	{
+		cout<<"Error loading " << file << "...exiting\n";
+		exit(1);
+	}
+	SurfaceLoader::setTransparency(image, RED, GREEN, BLUE);
 
 	return this;
 }
@@ -85,9 +94,12 @@ FOP* FOP::Bed()
 	actions.push_back(Action::SLEEP);
 	
 	char file[] = "./FOPS/bed.bmp";
-	image = SurfaceLoader::LoadImage(file);
-	colorkey = SDL_MapRGB(image->format, 255, 42, 113);
-	SDL_SetColorKey(image, SDL_SRCCOLORKEY, colorkey); //making the image transparency set to the colorkey
+	if((image =  SurfaceLoader::LoadImage(file)) == NULL)
+	{
+		cout<<"Error loading " << file << "...exiting\n";
+		exit(1);
+	}
+	SurfaceLoader::setTransparency(image, RED, GREEN, BLUE);
 
 	return this;
 }
@@ -98,24 +110,32 @@ FOP* FOP::Cat()
 	length = Tile::SIZE;
 	actions.push_back(Action::PET);
 	
-	char file[] = "./FOPS/cat.bmp";
-	image = SurfaceLoader::LoadImage(file);
-	colorkey = SDL_MapRGB(image->format, 255, 42, 113);
-	SDL_SetColorKey(image, SDL_SRCCOLORKEY, colorkey); //making the image transparency set to the colorkey
+	char file[] = "./FOPS/catsleep.bmp";
+	if((image =  SurfaceLoader::LoadImage(file)) == NULL)
+	{
+		cout<<"Error loading " << file << "...exiting\n";
+		exit(1);
+	}
+	SurfaceLoader::setTransparency(image, RED, GREEN, BLUE);
 
 	return this;
 }
 
 FOP* FOP::Character(int x, int y, Tile* ref)
 {
+	//Uint8 colorkey;
 	this->x = x;
 	this->y = y;
 	width = Tile::SIZE;
 	length = Tile::SIZE;
 	
 	/*char file[] = "./FOPS/char.bmp";
-	image = SurfaceLoader::LoadImage(file);
-	colorkey = SDL_MapRGB(image->format, 255, 42, 113);
+	if((image = SDL_LoadBMP(file)) == NULL)
+	{
+		cout<<"Error loading " << file << "...exiting\n";
+		exit(1);
+	}
+	colorkey = SDL_MapRGB(image->format, RED, GREEN, BLUE);
 	SDL_SetColorKey(image, SDL_SRCCOLORKEY, colorkey); //making the image transparency set to the colorkey
 */
 	location = ref;

@@ -64,5 +64,16 @@ bool SurfaceLoader::DrawImage(SDL_Surface* Surf_Dest, SDL_Surface* Surf_Src, int
 
 	SDL_BlitSurface(Surf_Src, &SrcR, Surf_Dest, &DestR);
 
-    return true;
+	return true;
+}
+
+bool SurfaceLoader::setTransparency(SDL_Surface* surf, int R, int G, int B)
+{
+	if(surf == NULL)
+		return false;
+
+	//making the image transparency set to the colorkey
+	SDL_SetColorKey(surf, SDL_SRCCOLORKEY, SDL_MapRGB(surf->format, R, G, B)); 
+
+	return true;
 }

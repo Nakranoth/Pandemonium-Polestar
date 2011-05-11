@@ -7,6 +7,7 @@
 class Tile;
 #include "Action.h"
 #include "SurfaceLoader.h"
+#include "config.cfg"
 
 using namespace std;
 

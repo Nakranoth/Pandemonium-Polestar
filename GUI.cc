@@ -55,23 +55,6 @@ int GUI::onExecute()
  *************************************/
 bool GUI::Initialize()
 {
-	//sets up the ZBRA 'city' to be a city
-	city.City();
-	character = city.map->ref->fops[0];
-
-	//setting running to true
-	running = true;
-
-	//setting up testing x and y velocities for holding down keys use
-	character->Xvel = 0;
-	character->Yvel = 0;
-
-	character->maxFrames = 5;
-	character->oscillate = false;
-
-	//setting up the initial render distance...could change for certain unlit areas 
-	renderdistance = 11;
-
 	//Telling SDL to initialize everything it has...
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
 	{
@@ -99,7 +82,21 @@ bool GUI::Initialize()
 	if((screen = SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
 	{
         	return false;
+	}
+
+	background = NULL;
+	if((background = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 32, NULL, NULL, NULL, NULL)) == NULL)
+	{
+        	return false;
     	}
+
+	foreground = NULL;
+	if((foreground = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, 640, 480, 32, NULL, NULL, NULL, NULL)) == NULL)
+	{
+        	return false;
+    	}
+
+	SurfaceLoader::setTransparency(foreground,RED,GREEN,BLUE);
 
 	//loading the tiles surface from the tiles.bmp to get the tile pictures from
 	TILES = NULL;
@@ -116,8 +113,25 @@ bool GUI::Initialize()
 		cerr << "Error in loading " << file2 << "...program exit.\n";
 		return false;
 	}
-	colorkey = SDL_MapRGB(CHARACTER->format, 255, 42, 113);
-	SDL_SetColorKey(CHARACTER, SDL_SRCCOLORKEY, colorkey); //making the image transparency set to the colorkey
+
+	SurfaceLoader::setTransparency(CHARACTER, RED, GREEN, BLUE);	
+
+	//sets up the ZBRA 'city' to be a city
+	city.City();
+	character = city.map->ref->fops[0];
+
+	//setting up testing x and y velocities for holding down keys use
+	character->Xvel = 0;
+	character->Yvel = 0;
+
+	character->maxFrames = 5;
+	character->oscillate = false;
+
+	//setting up the initial render distance...could change for certain unlit areas 
+	renderdistance = 11;
+
+	//setting running to true
+	running = true;
 
 	return true;
 }
@@ -189,68 +203,67 @@ void GUI::Logic()
  *************************************/
 void GUI::Render(Tile* ref)
 {
-	//Draw the character everytime
-	SurfaceLoader::DrawImage(screen, CHARACTER, 320 - (character->width / 2), 240 - (character->length / 2), character->getCurrentFrameOffset()*character->length, character->getCurrentFrame()*character->length, character->width, character->length);
-
-	//Draw the location tile of the character (should be under character)
-	//SurfaceLoader::DrawImage(screen, TILES, (character->location->x)*Tile::SIZE + (320 - character->x), (character->location->y)*Tile::SIZE + (240 - character->y), 120, 30, Tile::SIZE, Tile::SIZE);
-	
-
 	//Load the correct image for the tile depending on the type it is
 	switch(ref->type)
 	{
 		case Tile::WALL:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+			SurfaceLoader::DrawImage(background, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
 						(ref->y)*Tile::SIZE + (240 - character->y), 90, 0, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::FLOOR:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+			SurfaceLoader::DrawImage(background, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
 						(ref->y)*Tile::SIZE + (240 - character->y), 120, 0, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::ROAD:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+			SurfaceLoader::DrawImage(background, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
 						(ref->y)*Tile::SIZE + (240 - character->y), 60, 0, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::GRASS:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+			SurfaceLoader::DrawImage(background, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
 						(ref->y)*Tile::SIZE + (240 - character->y), 30, 0, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::DOOR:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+			SurfaceLoader::DrawImage(background, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
 						(ref->y)*Tile::SIZE + (240 - character->y), 0, 30, Tile::SIZE, Tile::SIZE);
 			break;
 		
 		case Tile::KITCHEN:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+			SurfaceLoader::DrawImage(background, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
 						(ref->y)*Tile::SIZE + (240 - character->y), 30, 30, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::BATHROOM:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+			SurfaceLoader::DrawImage(background, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
 						(ref->y)*Tile::SIZE + (240 - character->y), 60, 30, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::BEDROOM:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+			SurfaceLoader::DrawImage(background, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
 						(ref->y)*Tile::SIZE + (240 - character->y), 90, 30, Tile::SIZE, Tile::SIZE);
 			break;
 
 		case Tile::HOUSE:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+			SurfaceLoader::DrawImage(background, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
 						(ref->y)*Tile::SIZE + (240 - character->y), 0, 60, Tile::SIZE, Tile::SIZE);
 			break;
 
 		default:
 		case Tile::UDEF:
-			SurfaceLoader::DrawImage(screen, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
+			SurfaceLoader::DrawImage(background, TILES, (ref->x)*Tile::SIZE + (320 - character->x),
 						(ref->y)*Tile::SIZE + (240 - character->y), 0, 0, Tile::SIZE, Tile::SIZE);
 			break;
 	}
 
+	//Draw the character everytime
+	SurfaceLoader::DrawImage(foreground, CHARACTER, 320 - (character->width / 2), 240 - (character->length / 2), character->getCurrentFrameOffset()*character->length, character->getCurrentFrame()*character->length, character->width, character->length);
+
+	//Draw the location tile of the character (should be under character)
+	//SurfaceLoader::DrawImage(background, TILES, (character->location->x)*Tile::SIZE + (320 - character->x), (character->location->y)*Tile::SIZE + (240 - character->y), 120, 30, Tile::SIZE, Tile::SIZE);
+	
 	//Draw all the FOPs of the tile being drawn after drawing the tile
 	RenderFOPs(ref);
 }
@@ -265,6 +278,8 @@ void GUI::Render(Tile* ref)
 void GUI::Cleanup()
 {
 	SDL_FreeSurface(screen);
+	SDL_FreeSurface(background);
+	SDL_FreeSurface(foreground);
 	SDL_FreeSurface(TILES);
 	SDL_FreeSurface(ICON);
 	SDL_FreeSurface(CHARACTER);
@@ -281,6 +296,8 @@ void GUI::RenderMap(Tile* refTile)
 {
 	//Clear the screen
 	SDL_FillRect(screen,NULL,0);
+	SDL_FillRect(background,NULL,0);
+	SDL_FillRect(foreground,NULL,SDL_MapRGBA(foreground->format,RED,GREEN,BLUE,255));
 
 	//create a list of things yet to be rendered
 	set<Tile*> toRender;
@@ -324,10 +341,19 @@ void GUI::RenderMap(Tile* refTile)
 		toRender.erase(it);
 	}
 
+	draw.x = 0;
+	draw.y = 0;
+
+	SDL_BlitSurface(background, NULL, screen, NULL);
+	SDL_BlitSurface(foreground, NULL, screen, NULL);
+
+	//SurfaceLoader::DrawImage(screen, background, 0, 0);
+	//SurfaceLoader::DrawImage(screen, foreground, 0, 0);
+
+
 	//Will go after the loop finishing the output of
 	//the map so that all tiles are rendered THEN output
-	SDL_Flip(screen);
-	
+	SDL_Flip(screen);	
 }
 
 /**************************************
@@ -341,9 +367,10 @@ void GUI::RenderMap(Tile* refTile)
  **************************************/
 void GUI::RenderFOPs(Tile* tile)
 {
-	for(unsigned int i=0; i<(tile->fops.size()); i++)
+	unsigned int i;
+	for(i=0; i<(tile->fops.size()); i++)
 	{
-		SurfaceLoader::DrawImage(screen, tile->fops[i]->image, (tile->fops[i]->x) + (320 - character->x), (tile->fops[i]->y) + (320 - character->y));
+		SurfaceLoader::DrawImage(foreground, tile->fops[i]->image, (tile->fops[i]->x)*Tile::SIZE + (320 - character->x), (tile->fops[i]->y)*Tile::SIZE + (320 - character->y));
 	}
 }
 
@@ -552,7 +579,7 @@ bool GUI::checkCollisionCorners(FOP* fop, Tile* corner, int charXBoundary, int c
 {
 	if(corner->type == Tile::WALL && charXBoundary < corner->x*Tile::SIZE + Tile::SIZE && charXBoundary > corner->x*Tile::SIZE && charYBoundary < corner->y*Tile::SIZE + Tile::SIZE && charYBoundary > corner->y*Tile::SIZE)
 	{
-		cout<<"HALFWAY DETECT\n";
+		//cout<<"HALFWAY DETECT\n";
 		return true;
 	}
 	return false;

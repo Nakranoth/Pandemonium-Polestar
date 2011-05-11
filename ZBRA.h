@@ -33,6 +33,10 @@ class ZBRA
 		bounds dims;
 		bounds effDims;	//effective dimensions: this + adjacents.
 		int seed;
+
+	private:
+		vector<FOP*> fopslist; //FOPS within this ZBRA
+
 	public:
 		ZBRA();
 		~ZBRA();
@@ -54,7 +58,8 @@ class ZBRA
 		void solveRecursive();
 		void buildMap(Tile* superParent);//my parent's reference tile.
 		void AddFop(FOP* fop, Tile* tile); //builds list of fops contained in a tile
-		void AddFop(FOP* fop); //builds list of fops contained in this ZBRA
+		void AddFop(FOP* fop); //builds list of fops contained in this ZBRA to iterate through later for tile placement
+		void placeFops(); //places fops for each ZBRA into each ZBRA's tiles
 		void printDimsRecursive();
 };
 
