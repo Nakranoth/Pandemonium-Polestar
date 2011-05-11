@@ -55,7 +55,7 @@ void Map::checkConsistency(Tile* ref){
 	set<Tile*> toCheck;
 	toCheck.insert(ref);
 
-	//create a list of things that have already been rendered
+	//create a list of things that have already been checked for consistency
 	set<Tile*> isChecked;
 
 	//While there is still stuff to render...
