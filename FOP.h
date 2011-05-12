@@ -14,8 +14,12 @@ using namespace std;
 class FOP
 {
 	public:
+		//Flags
 		bool fitted;	//flag: has a set position in the map.
 		int isSolid; //flag: if this FOP can be passed over or not
+		bool outsideOnly; //flag: if this FOP only appears outdoors
+
+		//Non-flags
 		vector<int> actions;	//holds the actions that can be performed on this FOP
 		int width; //holds the pixel width of the FOP
 		int length; //holds the pixel length of the FOP
@@ -49,6 +53,9 @@ class FOP
 		FOP* Toilet();
 		FOP* Bed();
 		FOP* Cat();
+		FOP* Grass();
+		FOP* Tv();
+		FOP* Lamp();
 		FOP* Character(int x, int y, Tile* ref);
 
 		void setFrameRate(int rate);
@@ -57,6 +64,7 @@ class FOP
 		int getCurrentFrameOffset(); //This returns the appropriate number dependent on the direction
 		void startAnimation();
 		void stopAnimation();
+		void doAction(FOP* doer, FOP* receiver);
 		
 	private:
 		int getSize();	//Gets the length and width of the FOP

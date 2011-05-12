@@ -7,6 +7,8 @@ FOP::FOP()
 {
 	fitted = false;
 	isSolid = 1;
+	outsideOnly = false;	
+
 	width = 0;
 	length = 0;
 	x = 0;
@@ -37,8 +39,8 @@ int FOP::getSize()
 
 FOP* FOP::Sofa()
 {
-	width = 30;
-	length = 20;
+	width = SOFAWIDTH;
+	length = SOFALENGTH;
 	actions.push_back(Action::SIT);
 	
 	char file[] = "./FOPS/sofa.bmp";
@@ -54,8 +56,8 @@ FOP* FOP::Sofa()
 
 FOP* FOP::Refrigerator()
 {
-	width = Tile::SIZE;
-	length = Tile::SIZE;
+	width = REFRIGERATORWIDTH;
+	length = REFRIGERATORLENGTH;
 	actions.push_back(Action::OPEN);
 
 	char file[] = "./FOPS/refrigerator.bmp";
@@ -71,8 +73,8 @@ FOP* FOP::Refrigerator()
 
 FOP* FOP::Toilet()
 {
-	width = Tile::SIZE;
-	length = Tile::SIZE;
+	width = TOILETWIDTH;
+	length = Tile::TOILETLENGTH;
 	actions.push_back(Action::SIT);
 	
 	char file[] = "./FOPS/toilet.bmp";
@@ -88,9 +90,8 @@ FOP* FOP::Toilet()
 
 FOP* FOP::Bed()
 {
-	width = Tile::SIZE*2;
-	length = Tile::SIZE;
-	actions.push_back(Action::SIT);
+	width = BEDWIDTH;
+	length = BEDLENGTH;
 	actions.push_back(Action::SLEEP);
 	
 	char file[] = "./FOPS/bed.bmp";
@@ -106,11 +107,62 @@ FOP* FOP::Bed()
 
 FOP* FOP::Cat()
 {
-	width = Tile::SIZE;
-	length = Tile::SIZE;
+	width = CATWIDTH;
+	length = CATLENGTH;
 	actions.push_back(Action::PET);
 	
 	char file[] = "./FOPS/catsleep.bmp";
+	if((image =  SurfaceLoader::LoadImage(file)) == NULL)
+	{
+		cout<<"Error loading " << file << "...exiting\n";
+		exit(1);
+	}
+	SurfaceLoader::setTransparency(image, RED, GREEN, BLUE);
+
+	return this;
+}
+
+FOP* FOP::Grass()
+{
+	width = GRASSWIDTH;
+	length = GRASSLENGTH;
+
+	outsideOnly = true;
+	
+	char file[] = "./FOPS/grass.bmp";
+	if((image =  SurfaceLoader::LoadImage(file)) == NULL)
+	{
+		cout<<"Error loading " << file << "...exiting\n";
+		exit(1);
+	}
+	SurfaceLoader::setTransparency(image, RED, GREEN, BLUE);
+
+	return this;
+}
+
+FOP* FOP::Tv()
+{
+	width = TVWIDTH;
+	length = TVLENGTH;
+	
+	char file[] = "./FOPS/tv.bmp";
+	if((image =  SurfaceLoader::LoadImage(file)) == NULL)
+	{
+		cout<<"Error loading " << file << "...exiting\n";
+		exit(1);
+	}
+	SurfaceLoader::setTransparency(image, RED, GREEN, BLUE);
+
+	return this;
+}
+
+FOP* FOP::Lamp()
+{
+	width = LAMPWIDTH;
+	length = LAMPLENGTH;
+	actions.push_back(Action::TURNON);
+	
+	char file[] = "./FOPS/lamp.bmp";
 	if((image =  SurfaceLoader::LoadImage(file)) == NULL)
 	{
 		cout<<"Error loading " << file << "...exiting\n";
@@ -216,4 +268,36 @@ int FOP::getCurrentFrameOffset()
 		frameOffset = 3;
 
 	return frameOffset; //face user by default
+}
+
+void FOP::doAction(FOP* doer, FOP* receiver)
+{
+	if(actions.empty())
+	{
+		printf("There is no action for this object.\n");
+		return;
+	}
+
+	//always grab the first action by default for now
+	switch(actions[0])
+	{
+		case 1:
+			Action::Sit(doer,receiver);
+			break;
+		case 2:
+			Action::Sleep(doer,receiver);
+			break;
+		case 3:
+			Action::Open(doer,receiver);
+			break;
+		case 4:
+			Action::Pet(doer,receiver);
+			break;
+		case 5:
+			Action::TurnOn(doer,receiver);
+			break;
+		default:
+			printf("There is no action for this object.\n");
+			break;
+	}
 }
