@@ -316,8 +316,8 @@ void ZBRA::placeFops()
 			cerr << x << ',' << y << "of" << dims.width << ',' << dims.height << endl;
 		}while(map->area[x][y].type != floor);
 		map->area[x][y].fops.push_back(*fops);
-		(*fops)->x = map->area[x][y].x * Tile::SIZE + random() / (RAND_MAX / Tile::SIZE);
-		(*fops)->y = map->area[x][y].y * Tile::SIZE + random() / (RAND_MAX / Tile::SIZE);
+		(*fops)->x = map->area[x][y].x * Tile::SIZE + Tile::SIZE / 2;
+		(*fops)->y = map->area[x][y].y * Tile::SIZE + Tile::SIZE / 2;
 	}
 }
 
