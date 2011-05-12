@@ -184,7 +184,6 @@ void ZBRA::findWalls(Tile* ref, set<Tile*> pWalls){
 					toCheck.insert(curr->north);
 				else{
 					walls.insert(curr->north);
-	//curr->north->type = Tile::ROAD;
 				}
 			}
 			if (curr->west && !isChecked.count(curr->west)){
@@ -192,7 +191,6 @@ void ZBRA::findWalls(Tile* ref, set<Tile*> pWalls){
 					toCheck.insert(curr->west);
 				else{
 					walls.insert(curr->west);
-	//curr->west->type = Tile::ROAD;
 				}
 			}
 			if (curr->south && !isChecked.count(curr->south)){
@@ -200,7 +198,6 @@ void ZBRA::findWalls(Tile* ref, set<Tile*> pWalls){
 					toCheck.insert(curr->south);
 				else{
 					walls.insert(curr->south);
-	//curr->south->type = Tile::ROAD;
 				}
 			}
 			if (curr->east && !isChecked.count(curr->east)){
@@ -208,7 +205,6 @@ void ZBRA::findWalls(Tile* ref, set<Tile*> pWalls){
 					toCheck.insert(curr->east);
 				else{
 					walls.insert(curr->east);
-	//curr->east->type = Tile::ROAD;
 				}
 			}
 			isChecked.insert(curr);
@@ -311,12 +307,17 @@ void ZBRA::AddFop(FOP* fop)
 void ZBRA::placeFops()
 {
 	vector<FOP*>::iterator fops;
-
 	for (fops = fopslist.begin(); fops < fopslist.end(); fops++)
 	{
-		map->area[2][2].fops.push_back(*fops);
-		(*fops)->x = map->area[2][2].x;
-		(*fops)->y = map->area[2][2].y;
+		int x,y;
+		do{
+			x = random() / (RAND_MAX / dims.width);
+			y = random() / (RAND_MAX / dims.height);
+			cerr << x << ',' << y << "of" << dims.width << ',' << dims.height << endl;
+		}while(map->area[x][y].type != floor);
+		map->area[x][y].fops.push_back(*fops);
+		(*fops)->x = map->area[x][y].x;
+		(*fops)->y = map->area[x][y].y;
 	}
 }
 
