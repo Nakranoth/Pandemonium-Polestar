@@ -108,6 +108,15 @@ void ZBRA::findWalls(Tile* ref, set<Tile*> pWalls){
 				return;
 			}
 		}
+		while(ref->x > dims.x){
+			if (ref->west != NULL){
+				ref = ref->west;
+			}
+			else{
+				cerr << "Bump x\n";
+				return;
+			}
+		}
 		while(ref->y < dims.y){
 			if (ref->south != NULL){
 				ref = ref->south;
@@ -116,6 +125,49 @@ void ZBRA::findWalls(Tile* ref, set<Tile*> pWalls){
 				cerr << "Bump y\n";
 				return;
 			}
+		}
+		while(ref->y > dims.y){
+			if (ref->north != NULL){
+				ref = ref->north;
+			}
+			else{
+				cerr << "Bump y\n";
+				return;
+			}
+		}
+		
+		//make sure we're where we're supposed to be.
+		bool east = false;
+		while (ref->type != floor){
+			if (east){
+				if (ref->south && ref->south->type == floor){
+					ref = ref->south;
+				}
+				else if (ref->east){
+					ref = ref->east;
+				}
+				else if (ref->south){
+					ref = ref->south;
+				}
+				else{//Should NOT ever happen.
+					ref->type = floor;
+				}
+			}
+			else{
+				if (ref->east && ref->east->type == floor){
+					ref = ref->east;
+				}
+				else if (ref->south){
+					ref = ref->south;
+				}
+				else if (ref->east){
+					ref = ref->east;
+				}
+				else{//Should NOT ever happen.
+					ref->type = floor;
+				}
+			}
+			east = !east; 
 		}
 		//we need the walls surrounding the area. (read, not floor)
 		set<Tile*> toCheck;
