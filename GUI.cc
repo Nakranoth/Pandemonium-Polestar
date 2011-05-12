@@ -396,22 +396,22 @@ void GUI::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 	//UP
 	if(sym == SDLK_UP)
 	{
-		character->Yvel -= 1;
+		character->Yvel -= SPEED;
 	}
 	//DOWN
 	if(sym == SDLK_DOWN)
 	{
-		character->Yvel += 1;
+		character->Yvel += SPEED;
 	}
 	//LEFT
 	if(sym == SDLK_LEFT)
 	{
-		character->Xvel -= 1;
+		character->Xvel -= SPEED;
 	}
 	//RIGHT
 	if(sym == SDLK_RIGHT)
 	{
-		character->Xvel += 1;
+		character->Xvel += SPEED;
 	}
 	//ESCAPE
 	if(sym == SDLK_ESCAPE)
@@ -483,20 +483,23 @@ bool GUI::checkCollision(FOP* fop)
 		if(fop->location->north->type == Tile::WALL && (fop->y - fop->length/2 + fop->Yvel) < fop->location->y*Tile::SIZE)
 		{
 			fop->Yvel = 0;
-			return true;
 		}
 		//Do an extra check for horizontals (so your not moving partially into a side wall as you move up)
 		//check the fop against the fop's northwest using the fop's left boundary and top boundary
 		else if(checkCollisionCorners(fop, fop->location->north->west, (fop->x - fop->width/2) + fop->Xvel, (fop->y - fop->width/2) + fop->Yvel))
 		{
-			fop->Yvel = 0;
-			return true;
+			//adjust the character into the proper spot to go past the corner
+			fop->x = (fop->location->x)*Tile::SIZE + (fop->width/2);
 		}
 		//check the fop against the fop's northeast using the fop's right boundary and top boundary
 		else if(checkCollisionCorners(fop, fop->location->north->east, (fop->x + fop->width/2) + fop->Xvel, (fop->y - fop->width/2) + fop->Yvel))
 		{
+			//adjust the character into the proper spot to go past the corner
+			fop->x = (fop->location->x)*Tile::SIZE + (fop->width/2);
+		}
+		else if(checkFopCollision(fop->location->north, character))
+		{
 			fop->Yvel = 0;
-			return true;
 		}
 	}
 
@@ -508,19 +511,22 @@ bool GUI::checkCollision(FOP* fop)
 		if(fop->location->south->type == Tile::WALL && (fop->y + fop->length/2 + fop->Yvel) > fop->location->south->y*Tile::SIZE)
 		{
 			fop->Yvel = 0;
-			return true;
 		}
 		//check the fop against the fop's southwest using the fop's left boundary and bottom boundary
 		else if(checkCollisionCorners(fop, fop->location->south->west, (fop->x - fop->width/2) + fop->Xvel, (fop->y + fop->width/2) + fop->Yvel))
 		{
-			fop->Yvel = 0;
-			return true;
+			//adjust the character into the proper spot to go past the corner
+			fop->x = (fop->location->x)*Tile::SIZE + (fop->width/2);
 		}
 		//check the fop against the fop's southeast using the fop's right boundary and bottom boundary
 		else if(checkCollisionCorners(fop, fop->location->south->east, (fop->x + fop->width/2) + fop->Xvel, (fop->y + fop->width/2) + fop->Yvel))
 		{
+			//adjust the character into the proper spot to go past the corner
+			fop->x = (fop->location->x)*Tile::SIZE + (fop->width/2);
+		}
+		else if(checkFopCollision(fop->location->south, character))
+		{
 			fop->Yvel = 0;
-			return true;
 		}
 	}
 
@@ -532,19 +538,22 @@ bool GUI::checkCollision(FOP* fop)
 		if(fop->location->east->type == Tile::WALL && (fop->x + fop->width/2 + fop->Xvel) > fop->location->east->x*Tile::SIZE)
 		{
 			fop->Xvel = 0;
-			return true;
 		}
 		//check the fop against the fop's eastnorth using the fop's right boundary and top boundary
 		else if(checkCollisionCorners(fop, fop->location->east->north, (fop->x + fop->width/2) + fop->Xvel, (fop->y - fop->width/2) + fop->Yvel))
 		{
-			fop->Xvel = 0;
-			return true;
+			//adjust the character into the proper spot to go past the corner
+			fop->y = (fop->location->y)*Tile::SIZE + (fop->length/2);
 		}
 		//check the fop against the fop's eastsouth using the fop's right boundary and bottom boundary
 		else if(checkCollisionCorners(fop, fop->location->east->south, (fop->x + fop->width/2) + fop->Xvel, (fop->y + fop->width/2) + fop->Yvel))
 		{
-			fop->Xvel = 0;
-			return true;
+			//adjust the character into the proper spot to go past the corner
+			fop->y = (fop->location->y)*Tile::SIZE + (fop->length/2);
+		}
+		else if(checkFopCollision(fop->location->east, character))
+		{
+			fop->Yvel = 0;
 		}
 	}
 
@@ -556,19 +565,22 @@ bool GUI::checkCollision(FOP* fop)
 		if(fop->location->west->type == Tile::WALL && (fop->x - fop->width/2 + fop->Xvel) < fop->location->x*Tile::SIZE)
 		{
 			fop->Xvel = 0;
-			return true;
 		}
 		//check the fop against the fop's westnorth using the fop's left boundary and top boundary
 		else if(checkCollisionCorners(fop, fop->location->west->north, (fop->x - fop->width/2) + fop->Xvel, (fop->y - fop->width/2) + fop->Yvel))
 		{
-			fop->Xvel = 0;
-			return true;
+			//adjust the character into the proper spot to go past the corner
+			fop->y = (fop->location->y)*Tile::SIZE + (fop->length/2);
 		}
 		//check the fop against the fop's westsouth using the fop's left boundary and bottom boundary
 		else if(checkCollisionCorners(fop, fop->location->west->south, (fop->x - fop->width/2) + fop->Xvel, (fop->y + fop->width/2) + fop->Yvel))
 		{
-			fop->Xvel = 0;
-			return true;
+			//adjust the character into the proper spot to go past the corner
+			fop->y = (fop->location->y)*Tile::SIZE + (fop->length/2);
+		}
+		else if(checkFopCollision(fop->location->west, character))
+		{
+			fop->Yvel = 0;
 		}
 	}
 
@@ -582,5 +594,45 @@ bool GUI::checkCollisionCorners(FOP* fop, Tile* corner, int charXBoundary, int c
 		//cout<<"HALFWAY DETECT\n";
 		return true;
 	}
+	return false;
+}
+
+/*******************************************
+ *checkFopCollision()
+ *
+ *This function takes in a tile that is being
+ *checked for collision and grabs its list of
+ *fops in order to see if any of them collide
+ *with the character/fop moving into that tile.
+ *If it returns true, it will stop the moving
+ *FOP's movement.
+ *******************************************/
+bool GUI::checkFopCollision(Tile* foptile, FOP* movingfop)
+{
+	vector<FOP*>::iterator fop;
+	//declaring and initializing the bounds of the moving FOP we are checking with
+	int leftbound = (movingfop->x - movingfop->width/2) + movingfop->Xvel;
+	int rightbound = (movingfop->x + movingfop->width/2) + movingfop->Xvel;
+	int topbound = (movingfop->y - movingfop->length/2) + movingfop->Yvel;
+	int bottombound = (movingfop->y + movingfop->length/2) + movingfop->Yvel;
+
+	//declaring the bounds of the FOPs in the tile
+	int fopleft, fopright, foptop, fopbottom = 0;
+
+	//For every fop within that tile
+	for (fop = foptile->fops.begin(); fop < foptile->fops.end(); fop++)
+	{
+		fopleft = ((*fop)->x - (*fop)->width/2);
+		fopright = ((*fop)->x + (*fop)->width/2);
+		foptop = ((*fop)->y - (*fop)->length/2);
+		fopbottom = ((*fop)->y + (*fop)->length/2);
+
+		if((leftbound < fopright && leftbound > fopleft) || (rightbound > fopleft && rightbound < fopright) || (topbound < fopbottom && topbound > foptop) || (bottombound > foptop && bottombound < fopbottom))
+		{
+			printf("FOP COLLIDE\n");
+			return true;
+		}
+	}
+
 	return false;
 }
