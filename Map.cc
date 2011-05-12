@@ -23,7 +23,7 @@ Map::Map(int xloc, int yloc, int xsiz, int ysiz, short floor, short wall, short 
 }
 
 Map::~Map(){
-	for(int i = 0; i < xsiz; i++) delete [] area[i];
+	for(int i = 0; i < xsiz; i++){delete [] area[i];}
 	delete [] area;
 }
 
@@ -209,7 +209,7 @@ void Map::stitch(Tile* parent, Tile* child, int wall, Map* cMap){
 		if(wall != Tile::UDEF) crun->type = wall;
 	}
 	if (prun->x != crun->x || prun->y != crun->y){
-		cerr << "CRAP!\n";
+		cerr << "Desynchronized Pointers!\n";
 		return;
 	}
 	cloneRow(prun,crun,true);
@@ -256,5 +256,6 @@ void Map::cloneTile(Tile* prun, Tile* crun){
 	prun->type = crun->type;
 	for (vector<FOP*>::iterator i = crun->fops.begin(); i < crun->fops.end();i++){
 		prun->fops.push_back(*i);
+		(*i)->location = prun;
 	}
 }

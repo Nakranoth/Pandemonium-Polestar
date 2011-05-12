@@ -4,3 +4,4 @@ Ant
 silverfish
 mosquitos
 Pressing two directions while against a wall will cause "wall humping"(Resolved: 5/11/11)
+FOPS occasionally land on the "wrong" side of a wall.

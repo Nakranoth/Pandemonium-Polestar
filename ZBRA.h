@@ -64,6 +64,8 @@ class ZBRA
 		void printDimsRecursive();
 		void findWalls(Tile* cityRef, set<Tile*> pWalls);//cityRef we can go to the proper tile set
 		void addDoors();
+		void FOPMigration(Tile* CityTile);
+		void migrateFOP(FOP* toMove, int orient, int initOrient);
 };
 
 #endif

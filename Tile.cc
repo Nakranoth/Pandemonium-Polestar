@@ -23,4 +23,10 @@ Tile::~Tile()
 	if (south) south->north = NULL;
 	if (east) east->west = NULL;
 	if (west) west->east = NULL;
+	while (!fops.empty()){
+		if ((*fops.begin())->location == this) {
+			((*fops.begin())->location == NULL);
+		}
+		fops.erase(fops.begin());
+	}
 }

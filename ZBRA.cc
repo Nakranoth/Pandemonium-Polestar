@@ -76,7 +76,7 @@ void ZBRA::buildMap(Tile* superParent){
 		cPoint = (*child)->map->ref;
 		
 		Map::stitch(pPoint,cPoint,(*child)->wall,(*child)->map);
-		map->checkConsistency((*child)->map->ref);
+		//map->checkConsistency((*child)->map->ref);
 	}
 	
 	for (vector<ZBRA*>::iterator adj = adjacent.begin(); adj < adjacent.end(); adj++){
@@ -88,8 +88,9 @@ void ZBRA::buildMap(Tile* superParent){
 		cPoint = (*adj)->map->ref;
 		
 		Map::stitch(pPoint,cPoint,(*adj)->wall,(*adj)->map);
-		map->checkConsistency((*adj)->map->ref);
+		//map->checkConsistency((*adj)->map->ref);
 	}
+	
 }
 
 void ZBRA::findWalls(Tile* ref, set<Tile*> pWalls){
@@ -226,7 +227,7 @@ void ZBRA::addDoors(){
 		vector<Tile*> intersect;
 		if ((*child)->floor != Tile::UDEF){
 			set<Tile*>::iterator pSet, cSet;
-			cerr << walls.size() << ',' << (*child)->walls.size() << endl;
+			//cerr << walls.size() << ',' << (*child)->walls.size() << endl;
 			for (pSet = walls.begin(); pSet != walls.end(); pSet++){
 				for (cSet = (*child)->walls.begin(); cSet != (*child)->walls.end(); cSet++){
 					//cerr<< "Here?\n";
@@ -313,11 +314,128 @@ void ZBRA::placeFops()
 		do{
 			x = random() / (RAND_MAX / dims.width);
 			y = random() / (RAND_MAX / dims.height);
-			cerr << x << ',' << y << "of" << dims.width << ',' << dims.height << endl;
+			//cerr << x << ',' << y << "of" << dims.width << ',' << dims.height << endl;
 		}while(map->area[x][y].type != floor);
 		map->area[x][y].fops.push_back(*fops);
 		(*fops)->x = map->area[x][y].x * Tile::SIZE + Tile::SIZE / 2;
 		(*fops)->y = map->area[x][y].y * Tile::SIZE + Tile::SIZE / 2;
+	}
+}
+
+void ZBRA::FOPMigration(Tile* ref){
+	bool east = true;
+	while((east && ref->east) || (!east && ref->west) || ref->south){
+		if (!ref->fops.empty()){
+			if (ref->fops.size() > 1 || 
+				ref->type == Tile::WALL ||
+				(ref->north && ref->north->type == Tile::DOOR) ||
+				(ref->west && ref->west->type == Tile::DOOR) ||
+				(ref->east && ref->east->type == Tile::DOOR) ||
+				(ref->south && ref->south->type == Tile::DOOR)	
+				){
+				int rand = random() / (RAND_MAX / 4);
+				FOP* toMove = ref->fops[0];
+				migrateFOP(toMove,rand,rand);
+				ref->fops.erase(ref->fops.begin());
+			}
+		}
+		if (east){
+			if (ref->east){
+				ref = ref->east;
+			}
+			else if (ref->south){
+				ref = ref->south;
+				east = !east;
+			}
+		}
+		else{
+			if (ref->west){
+				ref = ref->west;
+			}
+			else if (ref->south){
+				ref = ref->south;
+				east = !east;
+			}
+		}
+	}
+}
+
+//recursively tries a direction unti it either succeds or fails.
+//destroys the FOP on failure.
+void ZBRA::migrateFOP(FOP* toMove, int orient, int initOrient){
+	if ((orient != initOrient && orient % 4 == initOrient) || toMove->location == NULL){
+		cerr << "Failed Migration.\n";
+		return;
+	}
+	switch(orient % 4){
+		case 0://north
+			if (
+				toMove->location->north && 
+				(toMove->location->north->fops.size() == 0) &&
+				toMove->location->north->type != Tile::WALL &&
+				toMove->location->north->type != Tile::DOOR &&
+				toMove->location->north->y >= dims.y &&
+				(toMove->location->north->north == NULL || toMove->location->north->north->type != Tile::DOOR) &&
+				(toMove->location->north->east == NULL || toMove->location->north->east->type != Tile::DOOR) &&
+				(toMove->location->north->south == NULL || toMove->location->north->south->type != Tile::DOOR) &&
+				(toMove->location->north->west == NULL || toMove->location->north->west->type != Tile::DOOR) ){
+					toMove->location = toMove->location->north;
+					toMove->y -= Tile::SIZE;
+					toMove->location->fops.push_back(toMove);
+				}
+			else migrateFOP(toMove,orient+1,initOrient);
+			break;
+		case 1://south
+			if (
+				toMove->location->south && 
+				toMove->location->south->fops.size()== 0 &&
+				toMove->location->south->type != Tile::WALL &&
+				toMove->location->south->type != Tile::DOOR &&
+				toMove->location->south->y <= dims.y + dims.height &&
+				(toMove->location->south->north == NULL || toMove->location->south->south->type != Tile::DOOR) &&
+				(toMove->location->south->east == NULL || toMove->location->south->east->type != Tile::DOOR) &&
+				(toMove->location->south->south == NULL || toMove->location->south->south->type != Tile::DOOR) &&
+				(toMove->location->south->west == NULL || toMove->location->south->west->type != Tile::DOOR) ){
+					toMove->location = toMove->location->south;
+					toMove->y += Tile::SIZE;
+					toMove->location->fops.push_back(toMove);
+				}
+			else migrateFOP(toMove,orient+1,initOrient);
+			break;
+		case 2://east
+			if (
+				toMove->location->east && 
+				toMove->location->east->fops.size()== 0 &&
+				toMove->location->east->type != Tile::WALL &&
+				toMove->location->east->type != Tile::DOOR &&
+				toMove->location->east->x <= dims.x + dims.width &&
+				(toMove->location->east->north == NULL || toMove->location->east->east->type != Tile::DOOR) &&
+				(toMove->location->east->east == NULL || toMove->location->east->east->type != Tile::DOOR) &&
+				(toMove->location->east->south == NULL || toMove->location->east->south->type != Tile::DOOR) &&
+				(toMove->location->east->west == NULL || toMove->location->east->west->type != Tile::DOOR) ){
+					toMove->location = toMove->location->east;
+					toMove->x += Tile::SIZE;
+					toMove->location->fops.push_back(toMove);
+				}
+			else migrateFOP(toMove,orient+1,initOrient);	
+			break;
+		case 3://west
+			if (
+				toMove->location->west && 
+				toMove->location->west->fops.size()== 0 &&
+				toMove->location->west->type != Tile::WALL &&
+				toMove->location->west->type != Tile::DOOR &&
+				toMove->location->west->x >= dims.x &&
+				(toMove->location->west->north == NULL || toMove->location->west->west->type != Tile::DOOR) &&
+				(toMove->location->west->east == NULL || toMove->location->west->east->type != Tile::DOOR) &&
+				(toMove->location->west->south == NULL || toMove->location->west->south->type != Tile::DOOR) &&
+				(toMove->location->west->west == NULL || toMove->location->west->west->type != Tile::DOOR) ){
+					toMove->location = toMove->location->west;
+					toMove->x -= Tile::SIZE;
+					toMove->location->fops.push_back(toMove);
+				}
+			else migrateFOP(toMove,orient+1,initOrient);
+			break;
 	}
 }
 
@@ -335,6 +453,7 @@ ZBRA* ZBRA::City()
 	buildMap(NULL);
 	findWalls(map->ref,walls);
 	addDoors();
+	FOPMigration(map->ref);
 	AddFop((new FOP)->Character(320, 240, map->ref), map->ref);
 	return this;
 }
