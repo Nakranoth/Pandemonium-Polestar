@@ -228,7 +228,7 @@ void GUI::Render(Tile* ref)
 	SurfaceLoader::DrawImage(foreground, CHARACTER, 320 - (character->width / 2), 240 - (character->length / 2), character->getCurrentFrameOffset()*character->length, character->getCurrentFrame()*character->length, character->width, character->length);
 
 	//Draw the location tile of the character (should be under character)
-	SurfaceLoader::DrawImage(background, TILES, (character->location->x)*Tile::SIZE + (320 - character->x), (character->location->y)*Tile::SIZE + (240 - character->y), 120, 30, Tile::SIZE, Tile::SIZE);
+	//SurfaceLoader::DrawImage(background, TILES, (character->location->x)*Tile::SIZE + (320 - character->x), (character->location->y)*Tile::SIZE + (240 - character->y), 120, 30, Tile::SIZE, Tile::SIZE);
 	
 	//Draw all the FOPs of the tile being drawn after drawing the tile
 	RenderFOPs(ref);
@@ -388,8 +388,55 @@ void GUI::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 	//Right CTRL
 	if(sym == SDLK_f)
 	{
-		cout<<"We want to interact!\n";	
-		breakhere();	
+		//cout<<"We want to interact!\n";	
+		breakhere();
+
+		//Check the tile in front of you (based on your orientation aka your frame 0=down, 1=up, 2=left, 3=right)
+		//If there is an object, do its action
+		vector<FOP*>::iterator fop;
+		switch(character->getCurrentFrameOffset())
+		{
+			case 0:
+				//For every fop within that tile
+				for (fop = character->location->south->fops.begin(); fop < character->location->south->fops.end(); fop++)
+				{
+					//do an action
+					(*fop)->doAction(character, *fop);
+				}
+				break;
+			case 1:
+				//For every fop within that tile
+				for (fop = character->location->north->fops.begin(); fop < character->location->north->fops.end(); fop++)
+				{
+					//do an action
+					(*fop)->doAction(character, *fop);
+				}
+				break;
+			case 2:
+				//For every fop within that tile
+				for (fop = character->location->west->fops.begin(); fop < character->location->west->fops.end(); fop++)
+				{
+					//do an action
+					(*fop)->doAction(character, *fop);
+				}
+				break;
+			case 3:
+				//For every fop within that tile
+				for (fop = character->location->east->fops.begin(); fop < character->location->east->fops.end(); fop++)
+				{
+					//do an action
+					(*fop)->doAction(character, *fop);
+				}
+				break;
+			default:
+				//For every fop within that tile (shouldn't get here, but just incase assume 0)
+				for (fop = character->location->south->fops.begin(); fop < character->location->south->fops.end(); fop++)
+				{
+					//do an action
+					(*fop)->doAction(character, *fop);
+				}
+				break;
+		}
 	}
 }
 
@@ -636,7 +683,8 @@ bool GUI::checkFopCollision(Tile* foptile, FOP* movingfop)
 	int fopleft, fopright, foptop, fopbottom = 0;
 
 	//declaring all of the tiles we will check (within a radius of the character)
-	Tile* tiles[25];
+	int arraysize = 9;
+	Tile* tiles[arraysize];
 	tiles[0] = movingfop->location;
 	tiles[1] = movingfop->location->north;
 	tiles[2] = movingfop->location->north->east;
@@ -647,7 +695,9 @@ bool GUI::checkFopCollision(Tile* foptile, FOP* movingfop)
 	tiles[7] = movingfop->location->west;
 	tiles[8] = movingfop->location->west->north;
 	tiles[9] = movingfop->location->north->north;
-	tiles[10] = movingfop->location->north->north->east;
+
+	//If we ever needed a radius of 2 around the character to check for fops then uncomment this
+	/*tiles[10] = movingfop->location->north->north->east;
 	tiles[11] = movingfop->location->north->north->east->east;
 	tiles[12] = movingfop->location->north->east->east;
 	tiles[13] = movingfop->location->east->east;
@@ -661,10 +711,10 @@ bool GUI::checkFopCollision(Tile* foptile, FOP* movingfop)
 	tiles[21] = movingfop->location->west->west;
 	tiles[22] = movingfop->location->west->west->north;
 	tiles[23] = movingfop->location->west->west->north->north;
-	tiles[24] = movingfop->location->west->north->north;
+	tiles[24] = movingfop->location->west->north->north;*/
 
 	//For every tile around the character
-	for(int i = 0; i < 25; i++)
+	for(int i = 0; i < arraysize; i++)
 	{
 		//For every fop within that tile
 		for (fop = foptile->fops.begin(); fop < foptile->fops.end(); fop++)

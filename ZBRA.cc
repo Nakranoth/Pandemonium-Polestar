@@ -332,6 +332,9 @@ ZBRA* ZBRA::City()
 	idealSize = 900 + getIdealSize();
 	solveRecursive();
 	printDimsRecursive();
+	//add a few grass to the city
+	for(int i=0; i<20; i++)
+		//AddFop((new FOP)->Grass());
 	buildMap(NULL);
 	findWalls(map->ref,walls);
 	addDoors();
@@ -349,6 +352,7 @@ ZBRA* ZBRA::House(int randSeed)
 	subArea.push_back((new ZBRA)->LivingRoom(random()));
 	//for now every house will contain 1 cat
 	AddFop((new FOP)->Cat());
+	AddFop((new FOP)->Lamp());
 	minSize = 20 + getMinSize();
 	idealSize = 20 + getIdealSize();
 	return this;
@@ -372,7 +376,7 @@ ZBRA* ZBRA::Kitchen(int randSeed){
 	floor = Tile::KITCHEN;
 	wall = Tile::WALL;
 	//every kitchen for now will contain only 1 fridge
-	//AddFop((new FOP)->Refrigerator());
+	AddFop((new FOP)->Refrigerator());
 	minSize = 25;
 	idealSize = 40;
 	return this;
@@ -388,8 +392,10 @@ ZBRA* ZBRA::LivingRoom(int randSeed){
 	adjacent.push_back((new ZBRA)->BathRoom(random()));
 	adjacent.push_back((new ZBRA)->BedRoom(random()));
 	adjacent.push_back((new ZBRA)->BedRoom(random()));
-	//every living room for now will contain only 1 sofa
+	//every living room for now will contain only 1 sofa and now a tv
 	AddFop((new FOP)->Sofa());
+	AddFop((new FOP)->Tv());
+	AddFop((new FOP)->Lamp());
 	minSize = 30;
 	idealSize = 45;
 	return this;
@@ -411,7 +417,8 @@ ZBRA* ZBRA::BedRoom(int randSeed){
 	floor = Tile::BEDROOM;
 	wall = Tile::WALL;
 	//every bedroom for now will contain only 1 bed
-	//AddFop((new FOP)->Bed());
+	AddFop((new FOP)->Bed());
+	AddFop((new FOP)->Lamp());
 	minSize = 20;
 	idealSize = 35;
 	return this;
