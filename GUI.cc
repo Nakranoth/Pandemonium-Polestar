@@ -156,43 +156,9 @@ void GUI::EventHandler(SDL_Event* Event)
  *************************************/
 void GUI::Logic()
 {
+	moveFOP(character);
 
-	//Moving the x/y tile location of the character to keep track of him
-	//in terms of which tile of the map he's on
-	if(character->x / Tile::SIZE < character->location->x)
-	{
-		character->location = character->location->west;
-	}
-	if(character->x / Tile::SIZE > character->location->x)
-	{
-		character->location = character->location->east;
-	}
-	if(character->y / Tile::SIZE < character->location->y)
-	{
-		character->location = character->location->north;
-	}
-	if(character->y / Tile::SIZE > character->location->y)
-	{
-		character->location = character->location->south;
-	}
-
-	//check for any collisions that would result in a stopping
-	//of the velocity before moving the player
-	checkCollision(character);
-
-	//Move the character based on its velocity (can be 0)
-	character->x += character->Xvel;
-	character->y += character->Yvel;
-
-	if(character->Xvel != 0 || character->Yvel != 0)
-	{
-		//Move the animation for the character whenever he moves
-		character->startAnimation();
-	}
-	else
-	{
-		character->stopAnimation();
-	}
+	//from this point you can go through a list of moveable FOPs and call moveFOP on them
 }
 
 /*************************************
@@ -262,7 +228,7 @@ void GUI::Render(Tile* ref)
 	SurfaceLoader::DrawImage(foreground, CHARACTER, 320 - (character->width / 2), 240 - (character->length / 2), character->getCurrentFrameOffset()*character->length, character->getCurrentFrame()*character->length, character->width, character->length);
 
 	//Draw the location tile of the character (should be under character)
-	//SurfaceLoader::DrawImage(background, TILES, (character->location->x)*Tile::SIZE + (320 - character->x), (character->location->y)*Tile::SIZE + (240 - character->y), 120, 30, Tile::SIZE, Tile::SIZE);
+	SurfaceLoader::DrawImage(background, TILES, (character->location->x)*Tile::SIZE + (320 - character->x), (character->location->y)*Tile::SIZE + (240 - character->y), 120, 30, Tile::SIZE, Tile::SIZE);
 	
 	//Draw all the FOPs of the tile being drawn after drawing the tile
 	RenderFOPs(ref);
@@ -370,7 +336,7 @@ void GUI::RenderFOPs(Tile* tile)
 	unsigned int i;
 	for(i=0; i<(tile->fops.size()); i++)
 	{
-		SurfaceLoader::DrawImage(foreground, tile->fops[i]->image, (tile->fops[i]->x)*Tile::SIZE + (320 - character->x), (tile->fops[i]->y)*Tile::SIZE + (320 - character->y));
+		SurfaceLoader::DrawImage(foreground, tile->fops[i]->image, ((tile->fops[i]->x) - (tile->fops[i]->width/2))+ (320 - character->x), ((tile->fops[i]->y) - (tile->fops[i]->length/2))+ (240 - character->y));
 	}
 }
 
@@ -459,6 +425,56 @@ void GUI::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode)
 	if(sym == SDLK_ESCAPE)
 	{
 		onExit();
+	}
+}
+
+/*************************************
+ *moveFOP()
+ *
+ *This function is called whenever we
+ *want to do all the actions necessary
+ *for a FOP to move, such as collision
+ *checking, movement of its location
+ *tile, starting or stopping its
+ *animation squence, etc.
+ *************************************/
+void GUI::moveFOP(FOP* fop)
+{
+	//Moving the x/y tile location of the character to keep track of him
+	//in terms of which tile of the map he's on
+	if(fop->x / Tile::SIZE < fop->location->x)
+	{
+		fop->location = fop->location->west;
+	}
+	if(fop->x / Tile::SIZE > fop->location->x)
+	{
+		fop->location = fop->location->east;
+	}
+	if(fop->y / Tile::SIZE < fop->location->y)
+	{
+		fop->location = fop->location->north;
+	}
+	if(fop->y / Tile::SIZE > fop->location->y)
+	{
+		fop->location = fop->location->south;
+	}
+
+	//check for any collisions that would result in a stopping
+	//of the velocity before moving the player
+	checkCollision(fop);
+
+	//Move the character based on its velocity (can be 0)
+	fop->x += fop->Xvel;
+	fop->y += fop->Yvel;
+
+	if(fop->Xvel != 0 || fop->Yvel != 0)
+	{
+		//Move the animation for the character whenever he moves
+		fop->startAnimation();
+	}
+	else
+	{
+		fop->stopAnimation();
 	}
 }
 
@@ -553,7 +569,7 @@ bool GUI::checkCollision(FOP* fop)
 		}
 		else if(checkFopCollision(fop->location->east, character))
 		{
-			fop->Yvel = 0;
+			fop->Xvel = 0;
 		}
 	}
 
@@ -580,7 +596,7 @@ bool GUI::checkCollision(FOP* fop)
 		}
 		else if(checkFopCollision(fop->location->west, character))
 		{
-			fop->Yvel = 0;
+			fop->Xvel = 0;
 		}
 	}
 
@@ -619,18 +635,49 @@ bool GUI::checkFopCollision(Tile* foptile, FOP* movingfop)
 	//declaring the bounds of the FOPs in the tile
 	int fopleft, fopright, foptop, fopbottom = 0;
 
-	//For every fop within that tile
-	for (fop = foptile->fops.begin(); fop < foptile->fops.end(); fop++)
-	{
-		fopleft = ((*fop)->x - (*fop)->width/2);
-		fopright = ((*fop)->x + (*fop)->width/2);
-		foptop = ((*fop)->y - (*fop)->length/2);
-		fopbottom = ((*fop)->y + (*fop)->length/2);
+	//declaring all of the tiles we will check (within a radius of the character)
+	Tile* tiles[25];
+	tiles[0] = movingfop->location;
+	tiles[1] = movingfop->location->north;
+	tiles[2] = movingfop->location->north->east;
+	tiles[3] = movingfop->location->east;
+	tiles[4] = movingfop->location->east->south;
+	tiles[5] = movingfop->location->south;
+	tiles[6] = movingfop->location->south->west;
+	tiles[7] = movingfop->location->west;
+	tiles[8] = movingfop->location->west->north;
+	tiles[9] = movingfop->location->north->north;
+	tiles[10] = movingfop->location->north->north->east;
+	tiles[11] = movingfop->location->north->north->east->east;
+	tiles[12] = movingfop->location->north->east->east;
+	tiles[13] = movingfop->location->east->east;
+	tiles[14] = movingfop->location->east->east->south;
+	tiles[15] = movingfop->location->east->east->south->south;
+	tiles[16] = movingfop->location->east->south->south;
+	tiles[17] = movingfop->location->south->south;
+	tiles[18] = movingfop->location->south->south->west;
+	tiles[19] = movingfop->location->south->south->west->west;
+	tiles[20] = movingfop->location->south->west->west;
+	tiles[21] = movingfop->location->west->west;
+	tiles[22] = movingfop->location->west->west->north;
+	tiles[23] = movingfop->location->west->west->north->north;
+	tiles[24] = movingfop->location->west->north->north;
 
-		if((leftbound < fopright && leftbound > fopleft) || (rightbound > fopleft && rightbound < fopright) || (topbound < fopbottom && topbound > foptop) || (bottombound > foptop && bottombound < fopbottom))
+	//For every tile around the character
+	for(int i = 0; i < 25; i++)
+	{
+		//For every fop within that tile
+		for (fop = foptile->fops.begin(); fop < foptile->fops.end(); fop++)
 		{
-			printf("FOP COLLIDE\n");
-			return true;
+			fopleft = ((*fop)->x - (*fop)->width/2);
+			fopright = ((*fop)->x + (*fop)->width/2);
+			foptop = ((*fop)->y - (*fop)->length/2);
+			fopbottom = ((*fop)->y + (*fop)->length/2);
+
+			if( (leftbound <= fopright && rightbound >= fopleft) && (topbound <= fopbottom && bottombound >= foptop) )
+			{
+				return true;
+			}
 		}
 	}
 

@@ -315,8 +315,8 @@ void ZBRA::placeFops()
 	for (fops = fopslist.begin(); fops < fopslist.end(); fops++)
 	{
 		map->area[2][2].fops.push_back(*fops);
-		(*fops)->x = map->area[2][2].x;
-		(*fops)->y = map->area[2][2].y;
+		(*fops)->x = map->area[2][2].x * Tile::SIZE;
+		(*fops)->y = map->area[2][2].y * Tile::SIZE;
 	}
 }
 

@@ -37,8 +37,8 @@ int FOP::getSize()
 
 FOP* FOP::Sofa()
 {
-	width = Tile::SIZE*2 + 10;
-	length = Tile::SIZE + 20;
+	width = 30;
+	length = 20;
 	actions.push_back(Action::SIT);
 	
 	char file[] = "./FOPS/sofa.bmp";
